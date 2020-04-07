@@ -1,0 +1,34 @@
+    * Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
+    * Accept-Encoding: gzip, deflate, br
+    * Accept-Language: en-US,en;q=0.9,sk;q=0.8,cs;q=0.7
+    * Cache-Control: max-age=0
+    * Connection: keep-alive
+    * Content-Length: 922
+    * Content-Type: application/x-www-form-urlencoded
+    * Cookie: PD_STATEFUL_053e91ee-3463-11e4-bb11-a224edf30402=%2Fportal; DMV.CA.GOV=2779298438.47873.0000; PD_STATEFUL_00bcef52-0c5a-11e4-98a1-a224e2a50102=%2Fwasapp; AMWEBJCT!%2Fwasapp!JSESSIONID=0000jbq3YhK11GHFx06Z92CE9db:18u4c282j; TS013cb4be=019de3c5d9c77dfc0b1eb638fa65cf64ff27dd2382c6746535f20ebcab7cfd2b4bfc7adbd6
+    * DNT: 1
+    * Host: www.dmv.ca.gov
+    * Origin: https://www.dmv.ca.gov
+    * Referer: https://www.dmv.ca.gov/wasapp/foa/startDriveTest.do
+    * Sec-Fetch-Mode: navigate
+    * Sec-Fetch-Site: same-origin
+    * Sec-Fetch-User: ?1
+    * Upgrade-Insecure-Requests: 1
+    * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36
+* Form Dataview source view URL encoded
+    * numberItems: 1
+    * mode: DriveTest
+    * captchaResponse: 03AOLTBLSX0Y_QAOu0x0CbNZfOkMOerzuP8v85AQfVCO-T-ZRaILi4Y-WxSx2_Nc7nNHTR7adADFWrXQkzIrgxwlZbzhHVwUiF7B7YqVOOAI2dcVz70Z9-_RvvVZfsH_YSfFUsw4xATvNvZTzNlnE8gE5fkX20-wZWvvcMGA1Ch_Dwea46bJG8G9Z64KDpt2oieExCuDfLz3Up0RaCdutLZTwS1ndQgCszu5960uYVp0HqtefN_SkhMBvFiysRcMQJr-sm-JZbE-5pcW2429R4m7XxdCwT1Rd6dJfvhaUtAn-AVrHz_IkzgBDFjdSoNRI5tngc-T7GQkUU
+    * officeId: 511
+    * requestedTask: DT
+    * firstName: KATARINA
+    * lastName: SABOVA
+    * dlNumber: Y7788070
+    * birthMonth: 05
+    * birthDay: 30
+    * birthYear: 1989
+    * telArea: 415
+    * telPrefix: 202
+    * telSuffix: 3034
+    * resetCheckFields: true
+    * g-recaptcha-response: 03AOLTBLSX0Y_QAOu0x0CbNZfOkMOerzuP8v85AQfVCO-T-ZRaILi4Y-WxSx2_Nc7nNHTR7adADFWrXQkzIrgxwlZbzhHVwUiF7B7YqVOOAI2dcVz70Z9-_RvvVZfsH_YSfFUsw4xATvNvZTzNlnE8gE5fkX20-wZWvvcMGA1Ch_Dwea46bJG8G9Z64KDpt2oieExCuDfLz3Up0RaCdutLZTwS1ndQgCszu5960uYVp0HqtefN_SkhMBvFiysRcMQJr-sm-JZbE-5pcW2429R4m7XxdCwT1Rd6dJfvhaUtAn-AVrHz_IkzgBDFjdSoNRI5tngc-T7GQkUU

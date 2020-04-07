@@ -1,0 +1,34 @@
+    * Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
+    * Accept-Encoding: gzip, deflate, br
+    * Accept-Language: en-US,en;q=0.9,sk;q=0.8,cs;q=0.7
+    * Cache-Control: max-age=0
+    * Connection: keep-alive
+    * Content-Length: 922
+    * Content-Type: application/x-www-form-urlencoded
+    * Cookie: PD_STATEFUL_053e91ee-3463-11e4-bb11-a224edf30402=%2Fportal; DMV.CA.GOV=2779298438.47873.0000; PD_STATEFUL_00bcef52-0c5a-11e4-98a1-a224e2a50102=%2Fwasapp; AMWEBJCT!%2Fwasapp!JSESSIONID=0000jbq3YhK11GHFx06Z92CE9db:18u4c282j; TS013cb4be=019de3c5d955435f6bd69007124f1a4d135d2d2058207e31bd67040bbb21bad8dc1b24b0bb
+    * DNT: 1
+    * Host: www.dmv.ca.gov
+    * Origin: https://www.dmv.ca.gov
+    * Referer: https://www.dmv.ca.gov/wasapp/foa/startDriveTest.do
+    * Sec-Fetch-Mode: navigate
+    * Sec-Fetch-Site: same-origin
+    * Sec-Fetch-User: ?1
+    * Upgrade-Insecure-Requests: 1
+    * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36
+* Form Dataview source view URL encoded
+    * numberItems: 1
+    * mode: DriveTest
+    * captchaResponse: 03AOLTBLQO3brSCe2IC8daY14uMPj9pi9VKm5j-Tz-BZcV9MPBf9V_cAe8C1uy70NO8Qt_Ewelu8EmOwkwcW-LKdsubeg9Me6ejXp79uN5MSz38clG4IwyOFrxFtCPW0W_dNtcytk5nQguERdENappEGlLD2ifZIe_oloBwXNaJVQy0MSjzO4-95QhRcf3CY905Ke9GeB-XH3kb5OEqNUgAJUBGkuM22xTlw-DMPPOa5TBL7kHUjCHJ1bLzgKREbgwTwQMBSpl7L2Tdc9ddw9XfvBIdIWCJy0RWoVp6dEl2RNeL6__McdquPO0LolgZXJLHoNow2HEG5cD
+    * officeId: 639
+    * requestedTask: DT
+    * firstName: KATARINA
+    * lastName: SABOVA
+    * dlNumber: Y7788070
+    * birthMonth: 05
+    * birthDay: 30
+    * birthYear: 1989
+    * telArea: 415
+    * telPrefix: 202
+    * telSuffix: 3034
+    * resetCheckFields: true
+    * g-recaptcha-response: 03AOLTBLQO3brSCe2IC8daY14uMPj9pi9VKm5j-Tz-BZcV9MPBf9V_cAe8C1uy70NO8Qt_Ewelu8EmOwkwcW-LKdsubeg9Me6ejXp79uN5MSz38clG4IwyOFrxFtCPW0W_dNtcytk5nQguERdENappEGlLD2ifZIe_oloBwXNaJVQy0MSjzO4-95QhRcf3CY905Ke9GeB-XH3kb5OEqNUgAJUBGkuM22xTlw-DMPPOa5TBL7kHUjCHJ1bLzgKREbgwTwQMBSpl7L2Tdc9ddw9XfvBIdIWCJy0RWoVp6dEl2RNeL6__McdquPO0LolgZXJLHoNow2HEG5cD

@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv='Pragma' content='no-cache' />
+<meta http-equiv='Cache-Control' content='no-cache' />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+
+<title>Make Appointment</title>
+
+<link rel="stylesheet" href="/wasapp/../imageserver/theme/css/colorscheme-oceanside.css" />
+<link rel="stylesheet" href="/wasapp/../imageserver/theme/css/cagov.core.css" />
+<link rel="stylesheet" href="/wasapp/../imageserver/theme/css/wasapp.css" />
+<script src="/wasapp/../imageserver/theme/js/jquery.min.js" type="text/javascript"></script>
+<script src="/wasapp/../imageserver/theme/js/modernizr-2.0.6.min.js"></script>
+<script src="/wasapp/../imageserver/theme/js/wasapp.js"></script>
+<script type="text/javascript" src="javascript/JsFunctions.js"></script>
+<script type="text/javascript" src="javascript/map.js"></script>
+<script type="text/javascript" src="javascript/comm_map.js"></script>
+
+<style type="text/css">
+	input:disabled+label {
+		color: silver;
+	}
+	
+	input[ ?checkbox ?]:disabled+label {
+		color: silver;
+	}
+
+	@media print {
+		.noPrint, #heading, #footer {
+		    display: none !important;
+		    height: 0;
+		}
+	 }
+
+	@media only screen {
+		.noScreen,
+		.hidden-screen {
+		  display: none;
+		}
+	}
+
+	@media print {
+	 	.col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6,.col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12, .col-xs-12 {
+		  float: left;
+		}
+		.col-sm-12, .col-xs-12 {
+		  width: 100%;
+		}
+		.col-sm-11 {
+		  width: 91.66666667%;
+		}
+		.col-sm-10 {
+		  width: 83.33333333%;
+		}
+		.col-sm-9 {
+		  width: 75%;
+		}
+		.col-sm-8 {
+		  width: 66.66666667%;
+		}
+		.col-sm-7 {
+		  width: 58.33333333%;
+		}
+		.col-sm-6 {
+		  width: 66.66666667%;
+		}
+		.col-sm-5 {
+		  width: 41.66666667%;
+		}
+		.col-sm-4 {
+		  width: 33.33333333%;
+		}
+		.col-sm-3 {
+		  width: 25%;
+		}
+		.col-sm-2 {
+		  width: 25%;
+		}
+		.col-sm-1 {
+		  width: 8.33333333%;
+		}
+		.col-sm-pull-12 {
+		  right: 100%;
+		}
+		.col-sm-pull-11 {
+		  right: 91.66666667%;
+		}
+		.col-sm-pull-10 {
+		  right: 83.33333333%;
+		}
+		.col-sm-pull-9 {
+		  right: 75%;
+		}
+		.col-sm-pull-8 {
+		  right: 66.66666667%;
+		}
+		.col-sm-pull-7 {
+		  right: 58.33333333%;
+		}
+		.col-sm-pull-6 {
+		  right: 50%;
+		}
+		.col-sm-pull-5 {
+		  right: 41.66666667%;
+		}
+		.col-sm-pull-4 {
+		  right: 33.33333333%;
+		}
+		.col-sm-pull-3 {
+		  right: 25%;
+		}
+		.col-sm-pull-2 {
+		  right: 16.66666667%;
+		}
+		.col-sm-pull-1 {
+		  right: 8.33333333%;
+		}
+		.col-sm-pull-0 {
+		  right: auto;
+		}
+		.col-sm-push-12 {
+		  left: 100%;
+		}
+		.col-sm-push-11 {
+		  left: 91.66666667%;
+		}
+		.col-sm-push-10 {
+		  left: 83.33333333%;
+		}
+		.col-sm-push-9 {
+		  left: 75%;
+		}
+		.col-sm-push-8 {
+		  left: 66.66666667%;
+		}
+		.col-sm-push-7 {
+		  left: 58.33333333%;
+		}
+		.col-sm-push-6 {
+		  left: 50%;
+		}
+		.col-sm-push-5 {
+		  left: 41.66666667%;
+		}
+		.col-sm-push-4 {
+		  left: 33.33333333%;
+		}
+		.col-sm-push-3 {
+		  left: 25%;
+		}
+		.col-sm-push-2 {
+		  left: 16.66666667%;
+		}
+		.col-sm-push-1 {
+		  left: 8.33333333%;
+		}
+		.col-sm-push-0 {
+		  left: auto;
+		}
+		.col-sm-offset-12 {
+		  margin-left: 100%;
+		}
+		.col-sm-offset-11 {
+		  margin-left: 91.66666667%;
+		}
+		.col-sm-offset-10 {
+		  margin-left: 83.33333333%;
+		}
+		.col-sm-offset-9 {
+		  margin-left: 75%;
+		}
+		.col-sm-offset-8 {
+		  margin-left: 66.66666667%;
+		}
+		.col-sm-offset-7 {
+		  margin-left: 58.33333333%;
+		}
+		.col-sm-offset-6 {
+		  margin-left: 50%;
+		}
+		.col-sm-offset-5 {
+		  margin-left: 41.66666667%;
+		}
+		.col-sm-offset-4 {
+		  margin-left: 33.33333333%;
+		}
+		.col-sm-offset-3 {
+		  margin-left: 25%;
+		}
+		.col-sm-offset-2 {
+		  margin-left: 16.66666667%;
+		}
+		.col-sm-offset-1 {
+		  margin-left: 8.33333333%;
+		}
+		.col-sm-offset-0 {
+		  margin-left: 0%;
+		}
+	}
+	
+	@media print {
+		.col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6,.col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
+		  float: left;
+		}
+		.col-md-12 {
+		  width: 100%;
+		}
+		.col-md-11 {
+		  width: 91.66666667%;
+		}
+		.col-md-10 {
+		  width: 83.33333333%;
+		}
+		.col-md-9 {
+		  width: 75%;
+		}
+		.col-md-8 {
+		  width: 66.66666667%;
+		}
+		.col-md-7 {
+		  width: 58.33333333%;
+		}
+		.col-md-6 {
+		  width: 50%;
+		}
+		.col-md-5 {
+		  width: 41.66666667%;
+		}
+		.col-md-4 {
+		  width: 100%;
+		}
+		.col-md-3 {
+		  width:35%;
+		}
+		.col-md-2 {
+		  width: 16.66666667%;
+		}
+		.col-md-1 {
+		  width: 8.33333333%;
+		}
+		.col-md-pull-12 {
+		  right: 100%;
+		}
+		.col-md-pull-11 {
+		  right: 91.66666667%;
+		}
+		.col-md-pull-10 {
+		  right: 83.33333333%;
+		}
+		.col-md-pull-9 {
+		  right: 75%;
+		}
+		.col-md-pull-8 {
+		  right: 66.66666667%;
+		}
+		.col-md-pull-7 {
+		  right: 58.33333333%;
+		}
+		.col-md-pull-6 {
+		  right: 50%;
+		}
+		.col-md-pull-5 {
+		  right: 41.66666667%;
+		}
+		.col-md-pull-4 {
+		  right: 33.33333333%;
+		}
+		.col-md-pull-3 {
+		  right: 25%;
+		}
+		.col-md-pull-2 {
+		  right: 16.66666667%;
+		}
+		.col-md-pull-1 {
+		  right: 8.33333333%;
+		}
+		.col-md-pull-0 {
+		  right: auto;
+		}
+		.col-md-push-12 {
+		  left: 100%;
+		}
+		.col-md-push-11 {
+		  left: 91.66666667%;
+		}
+		.col-md-push-10 {
+		  left: 83.33333333%;
+		}
+		.col-md-push-9 {
+		  left: 75%;
+		}
+		.col-md-push-8 {
+		  left: 66.66666667%;
+		}
+		.col-md-push-7 {
+		  left: 58.33333333%;
+		}
+		.col-md-push-6 {
+		  left: 50%;
+		}
+		.col-md-push-5 {
+		  left: 41.66666667%;
+		}
+		.col-md-push-4 {
+		  left: 33.33333333%;
+		}
+		.col-md-push-3 {
+		  left: 25%;
+		}
+		.col-md-push-2 {
+		  left: 16.66666667%;
+		}
+		.col-md-push-1 {
+		  left: 8.33333333%;
+		}
+		.col-md-push-0 {
+		  left: auto;
+		}
+		.col-md-offset-12 {
+		  margin-left: 100%;
+		}
+		.col-md-offset-11 {
+		  margin-left: 91.66666667%;
+		}
+		.col-md-offset-10 {
+		  margin-left: 83.33333333%;
+		}
+		.col-md-offset-9 {
+		  margin-left: 75%;
+		}
+		.col-md-offset-8 {
+		  margin-left: 66.66666667%;
+		}
+		.col-md-offset-7 {
+		  margin-left: 58.33333333%;
+		}
+		.col-md-offset-6 {
+		  margin-left: 50%;
+		}
+		.col-md-offset-5 {
+		  margin-left: 41.66666667%;
+		}
+		.col-md-offset-4 {
+		  margin-left: 33.33333333%;
+		}
+		.col-md-offset-3 {
+		  margin-left: 25%;
+		}
+		.col-md-offset-2 {
+		  margin-left: 16.66666667%;
+		}
+		.col-md-offset-1 {
+		  margin-left: 8.33333333%;
+		}
+		.col-md-offset-0 {
+		  margin-left: 0%;
+		}
+	}
+	
+	@media print {
+		  body, .body, form-control, .form-control {
+			font-size: 12px;
+		    background-color: white;
+		  }
+    }
+	
+	@media print {
+		h1, .h1, h2, .h2, h3, .h3 {
+  			color: black;
+		}
+	}
+
+	@media print {
+		h1, .h1 {
+			font-size: 1.5em;
+		}
+	}
+
+	@media print {
+		input:disabled+label {
+			color: silver;
+		}
+	}
+
+	@media print {
+		input[ ?checkbox ?]:disabled+label {
+			color: silver;
+		}
+	}
+}
+
+</style>
+
+
+
+<script type="text/javascript">
+	window.setTimeout("parent.location='/portal/dmv/timeout';",
+			605000);
+</script>
+
+<!--   Google Analytics   -->
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push([ '_setAccount', 'UA-3419582-2' ]); // ca.gov  google analytics profile code
+    _gaq.push([ '_setDomainName', '.ca.gov' ]);
+    _gaq.push([ '_trackPageview' ]);
+
+    (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+                                        : 'http://www')
+                                        + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push([ '_setAccount', 'UA-3419582-34' ]); // DMV's google analytics profile code
+    _gaq.push([ '_setDomainName', '.ca.gov' ]);
+    _gaq.push([ '_trackPageview' ]);
+
+    (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+                                        : 'http://www')
+                                        + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+
+<!--   Google Chrome Browser Autocomplete Disablement   -->
+<script>
+    $(document).ready(function () {
+        try {
+            $("input[type='text']").each(function(){
+                $(this).attr("autocomplete","none");
+               });
+        }
+        catch (e)
+        { }
+    });
+</script>
+</head>
+
+
+<body class="app javascript_on ">
+    
+
+    <div id="heading">
+
+        
+            
+            
+                <!-- dmv_branding/webapps_responsive/header_en.html -->
+
+<header id="header" class="global-header">
+
+    <div id="skip_to_content" style="visibility: visible"></div>
+
+    <!-- logo and organization banner -->
+    <div class="branding">
+        <div class="header-cagov-logo">
+            <img src="/wasapp/../imageserver/theme/images/header-ca.gov.png" alt="CA.gov" />
+        </div>
+    
+        <div class="header-organization-banner">
+            <img src="/wasapp/../imageserver/theme/images/header-organization.png" alt="California Department of Motor Vehicles">
+        </div>
+    </div>
+
+    <div class="mobile-controls">
+        <span class="mobile-control toggle-menu"><span class="ca-gov-icon-menu" aria-hidden="true"></span><span class="sr-only">Menu</span></span>
+    </div>
+
+<!-- dmv_branding/webapps_responsive/header_en.html -->
+            
+        
+
+        
+            
+            
+                
+            
+        
+
+        
+            
+                
+                    <!-- UserInfo, logged out -->
+                    <div id="UserInfo">
+                        <p>
+                            <a href="/wasapp/../portal/mydmv?lang=en">
+                                Login
+                            </a>
+                            <a href="/wasapp/shoppingcart/shoppingCartApplication.do?localeName=en">
+                                Shopping Cart
+                                
+                            </a>
+                        </p>
+                    </div>
+                
+                
+            
+        
+        
+
+        <!-- main navigation -->
+        <nav id="navigation" class="main-navigation singlelevelnav auto-highlight mobile-closed">
+        <ul id="nav_list" class="top-level-nav">
+            <!-- DMV Home -->
+            <li id="home-link" class="nav-item">
+                <a href="/wasapp/../portal/dmv" class="first-level-link">
+                    Home
+                </a>
+            </li>
+        </ul>
+        </nav>
+
+        <div class="header-decoration"></div>
+        </header>
+
+    </div>
+    <!-- closes heading div -->
+
+    <a name="content"></a>
+
+    <div id="main-content" class="main-content">
+        <div id="app_header">
+            
+<h1>Appointment System</h1>
+        </div>
+        <div id="app_content">
+            
+
+
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+	function onSubmit(token) {
+  		document.getElementById("captchaResponse").value = grecaptcha.getResponse();
+  		document.getElementById("findOffice").submit();
+	}
+</script>
+
+<script>
+	function autotab(original, destination) {
+		if (original.getAttribute
+				&& original.value.length == original.getAttribute("maxlength"))
+			destination.focus();
+	}
+</script>
+
+<script>
+	function setOfficeSelection(officeId) {
+		var officeList = document.getElementById("officeId");
+		officeList.selectedIndex = officeId;
+	}
+</script>
+
+<noscript>
+	<p class="alert alert-warning">
+		Javascript is off on your browser. This application requires Javascript to be enabled.
+	</p>
+</noscript>
+
+<h2>Notice to minors scheduling a Behind-the-Wheel drive test appointment:</h2>
+Minors must have had an instruction permit for at least 6 months to be eligible for a Behind-the-Wheel drive test. This appointment system will check eligibility based on the first available appointment date. Please call 1-800-777-0133 to book a specific date that is past the 6 months requirement.
+
+
+
+<form id="findOffice" class="form-horizontal" action="/wasapp/foa/findDriveTest.do" method="post">
+	<input id="numberItems" name="numberItems" value="1" type="hidden" value="1"/>
+	<input id="mode" name="mode" value="DriveTest" type="hidden" value="DriveTest"/>
+	<input id="captchaResponse" name="captchaResponse" type="hidden" value="03AOLTBLSzXq6pWtAFSYi-lF-WbR-WQqVcoG4Io5wsfNsQO31YxBgigXcSfqREZrRaIOhY1YzGUfwEX9HIktKsWjSRTxyqfL_9bG0Lx_2BnlCGHRbE0bTiRPVl4j9I6wW-ytEKCFEy9bvv8eY-5iVAg_ZZTzdfZaRj49odIcr7rh69YpPt08crZ1XR-nU--UWuoYFhipuUFNXQjjo195wJi3-WODfclU67jAAgPQHPHjUyjGZkUMXUknP-VPy_c4_f4zejrVvr4pPJzb-AKIek9dNND6Oq68PXXs3NQADh14-3l6U3Mso7pgwk19sl8q7vuGzoSoDvfoC4"/>
+	
+	
+	<fieldset>
+
+		<!-- Select Office -->
+		<div class="form-group col-xs-12 no-margin-bottom">
+			<h3>
+				Which office would you like to visit?
+			</h3>
+			
+				
+		    
+
+			<label for="officeId" class="control-label left col-xs-12 col-sm-2">
+				(Make a selection from the map or the drop down list of offices.)
+			</label>
+			<div class="col-xs-12 col-sm-6 col-md-4">
+				<input type="button" class="btn btn-default" name="Submit2"
+					value="Map CA DMV Offices" onclick="show_map('setOfficeSelection');" />
+				<br>
+				<br>
+				<p>
+					<select id="officeId" name="officeId" tabindex="1" class="form-control inline">
+						<option selected></option>
+						<option value="537">ALTURAS</option><option value="587">ARLETA</option><option value="661">ARVIN</option><option value="570">AUBURN</option><option value="529">BAKERSFIELD</option><option value="679">BAKERSFIELD SW</option><option value="641">BANNING</option><option value="582">BARSTOW</option><option value="576">BELL GARDENS</option><option value="606">BELLFLOWER</option><option value="585">BISHOP</option><option value="528">BLYTHE</option><option value="597">BRAWLEY</option><option value="550">CAPITOLA</option><option value="625">CARMICHAEL</option><option value="520">CHICO</option><option value="613">CHULA VISTA</option><option value="580">CLOVIS</option><option value="603">COALINGA</option><option value="564">COLUSA</option><option value="581">COMPTON</option><option value="523">CONCORD</option><option value="534">CORTE MADERA</option><option value="628">COSTA MESA</option><option value="524">CRESCENT CITY</option><option value="514">CULVER CITY</option><option value="599">DALY CITY</option><option value="598">DAVIS</option><option value="615">DELANO</option><option value="669">EL CAJON</option><option value="527">EL CENTRO</option><option value="556">EL CERRITO</option><option value="685">EL MONTE</option><option value="526">EUREKA</option><option value="621">FAIRFIELD</option><option value="643">FALL RIVER MILLS</option><option value="655">FOLSOM</option><option value="657">FONTANA</option><option value="590">FORT BRAGG</option><option value="644">FREMONT</option><option value="505">FRESNO</option><option value="646">FRESNO NORTH</option><option value="607">FULLERTON</option><option value="627">GARBERVILLE</option><option value="498">GARDENA CDTC</option><option value="623">GILROY</option><option value="510">GLENDALE</option><option value="670">GOLETA</option><option value="693">GRANADA HILLS DLPC</option><option value="541">GRASS VALLEY</option><option value="565">HANFORD</option><option value="609">HAWTHORNE</option><option value="579">HAYWARD</option><option value="635">HEMET</option><option value="546">HOLLISTER</option><option value="508">HOLLYWOOD</option><option value="652">HOLLYWOOD WEST</option><option value="578">INDIO</option><option value="610">INGLEWOOD</option><option value="521">JACKSON</option><option value="647">KING CITY</option><option value="605">LAGUNA HILLS</option><option value="687">LAKE ISABELLA</option><option value="530">LAKEPORT</option><option value="595">LANCASTER</option><option value="617">LINCOLN PARK</option><option value="622">LODI</option><option value="692">LOMPOC</option><option value="507">LONG BEACH</option><option value="502">LOS ANGELES</option><option value="650">LOS BANOS</option><option value="640">LOS GATOS</option><option value="533">MADERA</option><option value="658">MANTECA</option><option value="566">MARIPOSA</option><option value="536">MERCED</option><option value="557">MODESTO</option><option value="511">MONTEBELLO</option><option value="639">MOUNT SHASTA</option><option value="540">NAPA</option><option value="584">NEEDLES</option><option value="662">NEWHALL</option><option value="586">NORCO</option><option value="686">NOVATO</option><option value="504">OAKLAND CLAREMONT</option><option value="604">OAKLAND COLISEUM</option><option value="596" selected="selected">OCEANSIDE</option><option value="522">OROVILLE</option><option value="636">OXNARD</option><option value="683">PALM DESERT</option><option value="659">PALM SPRINGS</option><option value="601">PARADISE</option><option value="509">PASADENA</option><option value="574">PASO ROBLES</option><option value="634">PETALUMA</option><option value="592">PITTSBURG</option><option value="525">PLACERVILLE</option><option value="631">PLEASANTON</option><option value="532">POMONA</option><option value="573">PORTERVILLE</option><option value="676">POWAY</option><option value="544">QUINCY</option><option value="612">RANCHO CUCAMONGA</option><option value="558">RED BLUFF</option><option value="551">REDDING</option><option value="626">REDLANDS</option><option value="548">REDWOOD CITY</option><option value="633">REEDLEY</option><option value="577">RIDGECREST</option><option value="545">RIVERSIDE</option><option value="656">RIVERSIDE EAST</option><option value="673">ROCKLIN</option><option value="543">ROSEVILLE</option><option value="501">SACRAMENTO</option><option value="602">SACRAMENTO SOUTH</option><option value="539">SALINAS</option><option value="568">SAN ANDREAS</option><option value="512">SAN BERNARDINO</option><option value="648">SAN CLEMENTE</option><option value="506">SAN DIEGO</option><option value="519">SAN DIEGO CLAIREMONT</option><option value="503">SAN FRANCISCO</option><option value="516">SAN JOSE</option><option value="645">SAN JOSE DLPC</option><option value="547">SAN LUIS OBISPO</option><option value="689">SAN MARCOS RANCHEROS</option><option value="593">SAN MATEO</option><option value="619">SAN PEDRO</option><option value="677">SAN YSIDRO</option><option value="542">SANTA ANA</option><option value="549">SANTA BARBARA</option><option value="632">SANTA CLARA</option><option value="563">SANTA MARIA</option><option value="616">SANTA MONICA</option><option value="630">SANTA PAULA</option><option value="555">SANTA ROSA</option><option value="668">SANTA TERESA</option><option value="567">SEASIDE</option><option value="660">SHAFTER</option><option value="680">SIMI VALLEY</option><option value="569">SONORA</option><option value="538">SOUTH LAKE TAHOE</option><option value="698">STANTON DLPC</option><option value="517">STOCKTON</option><option value="531">SUSANVILLE</option><option value="575">TAFT</option><option value="672">TEMECULA</option><option value="663">THOUSAND OAKS</option><option value="608">TORRANCE</option><option value="642">TRACY</option><option value="513">TRUCKEE</option><option value="594">TULARE</option><option value="553">TULELAKE</option><option value="649">TURLOCK</option><option value="638">TWENTYNINE PALMS</option><option value="535">UKIAH</option><option value="588">VACAVILLE</option><option value="554">VALLEJO</option><option value="515">VAN NUYS</option><option value="560">VENTURA</option><option value="629">VICTORVILLE</option><option value="559">VISALIA</option><option value="624">WALNUT CREEK</option><option value="583">WATSONVILLE</option><option value="572">WEAVERVILLE</option><option value="618">WEST COVINA</option><option value="611">WESTMINSTER</option><option value="591">WHITTIER</option><option value="571">WILLOWS</option><option value="637">WINNETKA</option><option value="561">WOODLAND</option><option value="552">YREKA</option><option value="562">YUBA CITY</option>
+					</select>
+				</p>
+			</div>
+		</div>
+
+		<!-- Task -->
+		<div class="form-group col-xs-12">
+			<br />
+			
+				
+		    
+
+			<label class="control-label left col-xs-12 col-sm-2">
+				Type of Test:
+			</label>
+			<div class="col-xs-12 col-sm-6 col-md-4">
+				<div class="radio inline">
+					<input id="DT" name="requestedTask" tabindex="2" onclick="manageSafetyCourse(this.form)" type="radio" value="DT" checked="checked"/>
+					<label class="control-label" for="DT">
+						Automobile
+					</label>
+				</div>
+				<div class="radio inline">
+					<input id="MC" name="requestedTask" onclick="manageSafetyCourse(this.form)" type="radio" value="MC"/>
+					<label class="control-label" for="MC">
+						Motorcycle
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- Safety Course -->
+		<div class="form-group col-xs-12">
+			
+				
+		    
+
+			<label class="control-label left col-xs-12 col-sm-2">
+				Safety Course Completed?
+				<span style="font-weight: normal">
+					(Motorcycle tests only)
+				</span>
+			</label>
+			<div class="col-xs-12 col-sm-10 col-md-4">
+				<div class="radio inline">
+					<input id="yes" name="safetyCourseCompletedSelection" tabindex="3" type="radio" value="TRUE"/>
+					<label class="control-label" for="yes">
+						Yes
+					</label>
+				</div>
+				<div class="radio inline">
+					<input id="no" name="safetyCourseCompletedSelection" type="radio" value="FALSE"/>
+					<label class="control-label" for="no">
+						No
+					</label>
+				</div>
+				<a href="../../portal/dmv/detail/online/appt/apptfaq#whatmcourse" target="_blank" class="white-space-nowrap">
+					Motorcycle Safety Course Information
+				</a>
+			</div>
+		</div>
+
+		<!-- Customer Info -->
+		<div class="form-group col-xs-12 no-margin-bottom">
+			<h3>
+				Customer Information
+			</h3>
+			<p>
+				<span style="font-weight:normal">
+					Name fields must include standard alpha characters only (A-Z and a-z). Special characters ( - ) or accent marks ( " , ` , ' , ^ , etc.) are not allowed. 
+				</span>
+			</p>
+			</br>
+
+			<!-- First Name -->
+			<div class="form-group col-xs-12">
+				
+					
+			    
+	
+				<div class="form-group col-xs-12">
+					<label for="firstName" class="control-label left col-xs-12 col-sm-2">
+						First Name:
+					</label>
+					<div class="col-xs-12 col-sm-6 col-md-4">
+						<input id="firstName" name="firstName" tabindex="4" style="text-transform:uppercase" class="form-control alphaOnly" type="text" value="KATARINA" size="35" maxlength="35"/>
+					</div>
+				</div>
+			</div>
+	
+			<!-- Last Name -->
+			<div>
+				
+					
+			    
+		   	</div>
+			<div class="form-group col-xs-12">
+				<label for="lastName" class="control-label left col-xs-12 col-sm-2">
+					Last Name:
+				</label>
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<input id="lastName" name="lastName" tabindex="5" style="text-transform:uppercase" class="form-control alphaOnly" type="text" value="SABOVA" size="35" maxlength="35"/>
+				</div>
+			</div>
+
+			<!-- DL Number -->
+			<div class="form-group col-xs-12">
+				
+					
+			    
+			
+				<label for="dl_number" class="control-label left col-xs-12 col-sm-2">
+					Permit/Driver's License #:
+					<br>
+					<span style="font-weight: normal">
+						(For example: I0004567)
+					</span>
+				</label>
+				<div class="col-xs-12 col-sm-10 col-md-4">
+					<input id="dl_number" name="dlNumber" tabindex="6" style="text-transform:uppercase" class="form-control inline" type="text" value="Y7788070" size="14" maxlength="8"/>
+					<strong><a href="#" class="show-me-how-button white-space-nowrap" data-showmehow="showMeHowDL">
+							Show Me How
+						</a></strong>
+				</div>
+			</div>
+			<div id="showMeHowDL" class="show-me-how-content col-xs-12">
+				<img src="images/prov_permit.gif" class="col-xs-12 col-md-8 col-md-push-2" />
+			</div>
+	
+			<!-- Birthdate -->
+			<div class="form-group col-xs-12">
+				
+					
+			    
+	
+				<div class="form-group">
+					<label for="birthMonth" class="control-label left col-xs-12 col-sm-2">
+						Birthdate:
+						<br>
+						<span class="font-weight-normal">
+							(MM/DD/YYYY)
+						</span>
+					</label>
+					<div class="col-xs-12 col-sm-6">
+						<span class="white-space-nowrap">
+							<input id="birthMonth" name="birthMonth" tabindex="7" onkeyup="autotab(this, this.form.birthDay)" class="form-control inline numberOnly" type="text" value="05" size="3" maxlength="2"/>
+							/
+							<input id="birthDay" name="birthDay" tabindex="8" onkeyup="autotab(this, this.form.birthYear)" class="form-control inline numberOnly" type="text" value="30" size="3" maxlength="2"/>
+							/
+							<input id="birthYear" name="birthYear" tabindex="9" class="form-control inline numberOnly" type="text" value="1989" size="6" maxlength="4"/>
+						</span>
+					</div>
+				</div>
+			</div>
+	
+			<!-- Telephone -->
+			<div class="form-group col-xs-12">
+				
+					
+			    
+				
+					
+			    
+				
+					
+			    
+	
+				<label for="areaCode" class="control-label left col-xs-12 col-sm-2">
+					Telephone #:
+				</label>
+				<div class="col-xs-12 col-sm-6">
+					<span class="white-space-nowrap">
+						(
+						<input id="areaCode" name="telArea" tabindex="10" onkeyup="autotab(this, this.form.telPrefix)" class="form-control inline numberOnly" type="text" value="415" size="4" maxlength="3"/>
+						)
+						<input id="telPrefix" name="telPrefix" tabindex="11" onkeyup="autotab(this, this.form.telSuffix)" class="form-control inline numberOnly" type="text" value="202" size="4" maxlength="3"/>
+						<input id="telSuffix" name="telSuffix" tabindex="12" class="form-control inline numberOnly" type="text" value="3034" size="6" maxlength="4"/>
+					</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Buttons -->
+		<div class="col-xs-12 form-group button-group xs-expand centered">
+			<input type="hidden" name="resetCheckFields" value="true" />
+
+			
+				
+					<input type="submit" value="Continue" class="btn btn-primary g-recaptcha" data-sitekey='6Lc1RGEUAAAAABRCKide8MnHZNTsAuOu4w0VBPwo'  data-callback='onSubmit'/>
+				
+			
+	
+			
+
+			
+				
+			
+
+			<a href="clear.do?goTo=driveTest" class="btn btn-default">
+				Clear Fields
+			</a>
+
+			<a href="../../portal/dmv/detail/portal/foa/welcome" class="btn btn-default">
+				Cancel
+			</a>
+		</div>
+
+	</fieldset>
+</form>
+
+<p>
+	<em><strong>Note:</strong> If you choose <strong>&quot;Clear Fields&quot;</strong> or <strong>&quot;Cancel&quot;</strong> this appointment will NOT be submitted and the information previously entered will not be retained.</em>
+</p>
+
+<p>
+	If you require further assistance, please call <strong>1-800-777-0133</strong> during normal
+	<a href="../../portal/dmv/detail/fo/offices/toc_fo" target="_blank">
+		business hours.
+	</a>
+</p>
+
+<script>
+	$('.alphaOnly').bind('keypress', function(e) {
+		if (e.which !== 0 && e.charCode !== 0 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+			var value = String.fromCharCode(e.which);
+			var pattern = new RegExp(/[a-z ]/i);
+			if (!pattern.test(value)) {
+				e.preventDefault();
+				return false;
+			}
+		}
+	});
+	
+	$('.numberOnly').bind('keypress', function(e) {
+		if (e.which !== 0 && e.charCode !== 0 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+			var value = String.fromCharCode(e.which);
+			var pattern = new RegExp(/[0-9 ]/i);
+			if (!pattern.test(value)) {
+				e.preventDefault();
+				return false;
+			}
+		}
+	});
+
+	$('.alphaOnly').bind('paste', function(e) {
+	    var pastedText = undefined;
+		var currentText = document.getElementById(e.target.id).value;
+	    if (window.clipboardData && window.clipboardData.getData) { // IE
+	        pastedText = window.clipboardData.getData('Text');
+			if (!/^[a-zA-Z ]+$/.test(pastedText)) {
+	            e.target.value=currentText;
+			} else {
+				e.target.value = currentText + pastedText;
+			}
+	    } else {
+	        var clipboardData = (e.originalEvent || e).clipboardData;
+	        if (clipboardData && clipboardData.getData) {
+	            pastedText = clipboardData.getData('text/plain');
+	        }
+			if (!/^[a-zA-Z ]+$/.test(pastedText)) {
+	            e.target.value=currentText;
+			} else {
+				e.target.value = currentText + pastedText;
+			}
+		}
+		e.preventDefault();
+		return false;
+	});
+	
+	$('.numberOnly').bind('paste', function(e) {
+	    var pastedText = undefined;
+		var currentText = document.getElementById(e.target.id).value;
+	    if (window.clipboardData && window.clipboardData.getData) { // IE
+	        pastedText = window.clipboardData.getData('Text');
+			if (!/^[0-9 ]+$/.test(pastedText)) {
+	            e.target.value=currentText;
+			} else {
+				e.target.value = currentText + pastedText;
+			}
+	    } else {
+	        var clipboardData = (e.originalEvent || e).clipboardData;
+	        if (clipboardData && clipboardData.getData) {
+	            pastedText = clipboardData.getData('text/plain');
+	        }
+			if (!/^[0-9 ]+$/.test(pastedText)) {
+	            e.target.value=currentText;
+			} else {
+				e.target.value = currentText + pastedText;
+			}
+		}
+		e.preventDefault();
+		return false;
+	});
+
+	$('.alphaOnly').bind('drop', function(e) {
+		var dropText = e.originalEvent.dataTransfer.getData("Text");
+		var currentText = document.getElementById(e.target.id).value;
+		if (!/^[a-zA-Z ]+$/.test(dropText)) {
+			e.target.value=currentText;
+		} else {
+			e.target.value = currentText + dropText;
+		}
+		e.preventDefault();
+		return false;
+	});
+
+	$('.numberOnly').bind('drop', function(e) {
+		var dropText = e.originalEvent.dataTransfer.getData("Text");
+		var currentText = document.getElementById(e.target.id).value;
+		if (!/^[0-9 ]+$/.test(dropText)) {
+			e.target.value=currentText;
+		} else {
+			e.target.value = currentText + dropText;
+		}
+		e.preventDefault();
+		return false;
+	});
+</script>
+
+        </div>
+    </div>
+
+    <div class="cleaner"></div>
+
+    <div id="footer">
+        
+            
+            
+                <!-- dmv_branding/webapps_responsive/footer_en.html -->
+
+<div class="footer-copyright global-footer">
+    <div class="container">
+        <div class="row">
+        
+            <div class="col-md-2">&nbsp;</div>
+            
+            <div class="col-md-4">
+
+                <div class="foot1">
+                    <a href="/wasapp/../portal/dmv/detail/top_nav/accessibility">Accessibility</a>
+                    <br>
+                    <a href="/wasapp/../portal/dmv/detail/portal/portal/conditions">Conditions of Use</a>
+                    <br>
+                    <a href="/wasapp/../portal/dmv/detail/dl/disabled_info">Disability Services</a>
+                    <br>
+                    <a href="/wasapp/../portal/dmv/detail/top_nav/tech_help">Help</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="head2">
+                    <a href="/wasapp/../portal/dmv">Home</a>
+                    <br>
+                    <a href="/wasapp/../portal/dmv/detail/portal/portal/policy">Privacy Policy</a>
+                    <br>
+                    <a href="/wasapp/../portal/dmv/detail/sitemap/sitemap">Site Map</a>
+                    <br>
+                    <a href="/wasapp/../portal/dmv/detail/contacts/tech_support">Technical Support</a>
+                </div>
+            </div>
+            
+            <div class="col-md-2">&nbsp;</div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="copyrt">
+	    Copyright &copy; 
+            <span id="copyright"> <script type="text/javascript">document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
+			</script>
+	    </span> State of California
+	</div>
+    </div>
+</div>
+
+<!-- dmv_branding/webapps_responsive/footer_en.html -->
+            
+        
+        <div
+            style="padding: 0px; overflow: hidden; visibility: hidden; position: absolute; width: 1279px; left: -1280px; top: 0px; z-index: 1010;"
+            id="WzTtDiV"></div>
+    </div>
+
+    <script src="/wasapp/../imageserver/theme/js/cagov.core.js"></script>
+
+	<div class="noPrint">
+		<p style="color:#e6e6e6; font-size:x-small; text-align:center;">
+			FOA-Web
+		    version
+			16477
+		</p>
+	</div>
+
+</body>
+</html>
