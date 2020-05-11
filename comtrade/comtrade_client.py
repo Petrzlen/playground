@@ -11,19 +11,11 @@ import logging
 import requests
 import time
 
-from enum import Enum
 from http import HTTPStatus
 from urllib.parse import urlencode
 
+from utils import MMEnum
 
-# ============== General utils
-class MMEnum(Enum):
-    # https://stackoverflow.com/questions/24487405/enum-getting-value-of-enum-on-string-conversion
-    def __str__(self):
-        return str(self.value)
-
-
-# ============== Real deal
 MIN_YEAR = 1961
 MAX_YEAR = 2019
 
@@ -111,8 +103,6 @@ class ComtradeClient:
         HUMAN_READABLE = "H"
         MACHINE_READABLE = "M"  # Matches JSON field names.
 
-    # TODO add a merged enum: from https://comtrade.un.org/data/cache/reporterAreas.json
-    #      and https://comtrade.un.org/data/cache/partnerAreas.json
     def get_trade_data(self, output_filepath: str, partner="703", period=Period.NOW, row_limit=100000):
         """
             Queries the UN COMTRADE GET API for the requested arguments and stores it locally into `output_filepath`.
@@ -125,7 +115,7 @@ class ComtradeClient:
         """
         query_params = {
             # reporting area: WHO reported the trade to UNSD.
-            "r": "all",  # 703 = Slovakia, 842 = USA
+            "r": "all",
             # partner area.The area receiving the trade, based on the reporting areas data.
             "p": partner,
             "freq": ComtradeClient.Frequency.ANNUAL,
@@ -164,6 +154,8 @@ class ComtradeClient:
         v = content["validation"]
         validation_status = v["status"]["value"]
         if validation_status != 0:  # name = "ok"
+            # Exception: Maximum resultset is: 100000
+            self._logger.error(f"Validation Results: {v}")
             raise Exception(v["message"])
 
         # Maybe we can do sth with these.
