@@ -24,6 +24,10 @@ class MMEnum(Enum):
 
 
 # ============== Real deal
+MIN_YEAR = 1961
+MAX_YEAR = 2019
+
+
 # TODO: Explore BULK download, since we want to get all of the Data:
 #       https://comtrade.un.org/data/doc/api/bulk/#DataRequests
 class ComtradeClient:
@@ -49,6 +53,12 @@ class ComtradeClient:
         NOW = "now"
         RECENT = "recent"
         ALL = "all"
+
+        @staticmethod
+        def generate_years(start=MIN_YEAR, end=MAX_YEAR):
+            return [str(year) for year in range(start, end+1, 1)]
+
+        # TODO generate_yearmonths if needed.
 
     class Frequency(MMEnum):
         ANNUAL = "A"
@@ -103,13 +113,14 @@ class ComtradeClient:
 
     # TODO add a merged enum: from https://comtrade.un.org/data/cache/reporterAreas.json
     #      and https://comtrade.un.org/data/cache/partnerAreas.json
-    def get_trade_data(self, output_filepath: str, partner="703", row_limit=100000):
+    def get_trade_data(self, output_filepath: str, partner="703", period=Period.NOW, row_limit=100000):
         """
             Queries the UN COMTRADE GET API for the requested arguments and stores it locally into `output_filepath`.
             More features to come (see TODOs) around.
 
             :param output_filepath: where to output the downloaded dataset in case of success.
             :param partner: UN country code of which trade data is requested
+            :param period: See ComtradeClient.Period for possible values, note ALL can lead to "query too complex".
             :param row_limit: UN says that max is 100 000: https://comtrade.un.org/data/dev/portal#subscription
         """
         query_params = {
@@ -118,7 +129,7 @@ class ComtradeClient:
             # partner area.The area receiving the trade, based on the reporting areas data.
             "p": partner,
             "freq": ComtradeClient.Frequency.ANNUAL,
-            "ps": ComtradeClient.Period.NOW,
+            "ps": period,
             "px": ComtradeClient.ClassificationCode.HS,  # classification scheme used
             "cc": ComtradeClient.CommodityCode.AG6,  # result products classification code
             "rg": ComtradeClient.TradeFlow.ALL,  # imports / exports
@@ -128,7 +139,7 @@ class ComtradeClient:
             "head": ComtradeClient.HeadingFormat.MACHINE_READABLE,
         }
         url = ComtradeClient.API_BASE_URL + "?" + urlencode(query_params)
-        self._logger.info(f"Sending GET request for url {url}, query params: {query_params}")
+        self._logger.info(f"Sending GET request for url {url}")
 
         start = time.time()
         response = requests.get(url)
