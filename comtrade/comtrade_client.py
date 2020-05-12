@@ -173,15 +173,16 @@ class ComtradeClient:
     # TODO: Work on retry-able errors (like timeouts, rate limits and so).
     # TODO: Introduce specific errors.
     def _parse_dataset(self, response: requests.Response, query_params):
+        response_snippet = str(response.content[:100])
         if response.status_code != HTTPStatus.OK:
-            err_str = f"HTTP {response.status_code}: {response.content[:100]}"
+            err_str = f"HTTP {response.status_code}: {response_snippet}"
             if response.status_code in [HTTPStatus.GATEWAY_TIMEOUT, HTTPStatus.REQUEST_TIMEOUT, HTTPStatus.CONFLICT]:
                 raise ComtradeRetriableException(err_str)
             raise ComtradeException(err_str)
 
         content = json.loads(response.content)
         if "validation" not in content:
-            raise ComtradeRetriableException(f"Validation object expected in response: {response.content[:100]}")
+            raise ComtradeRetriableException(f"Validation object expected in response: {response_snippet}")
 
         v = content["validation"]
 
