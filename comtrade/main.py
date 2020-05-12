@@ -4,7 +4,7 @@ import logging
 import sys
 
 from comtrade_client import ComtradeClient, ComtradeRetriableException
-from comtrade_enums import Country
+from enums.country import Country
 from utils import safe_mkdir
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)

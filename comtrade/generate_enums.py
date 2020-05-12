@@ -24,16 +24,26 @@ def enumizy_name(name: str) -> str:
     ]
     for p in replace_pairs:
         name = re.sub(p[0], p[1], name)
-    return slugify(name).upper().replace("-", "_")
+    slug = slugify(name).upper().replace("-", "_")
+    # We could've made this RegEx part of replace_pairs, but unsure how it deals with non-ASCII starting characters.
+    # Enums names must start with a letter.
+    return re.sub(r"^[^a-zA-Z]*", "", slug)
 
 
-def generate_enums(urls, model_name, output_file, include_header=True):
+def classification_name_transform(name, value):
+    if len(name) > 50:
+        name = name[:30] + "___" + name[-17:]
+    return name + "_" + value
+
+
+def generate_enums(urls, model_name, output_file, include_header=True, name_transform=None):
     """Generate Enum `model_name` from Entities merged from `urls` written into `output_file`.
 
-    :param urls: merge all
-    :param model_name:
-    :param output_file:
-    :param include_header: useful when generating multiple Enums into the same file.
+    :param urls: merge all key/values from these urls
+    :param model_name: the class ModelName(Enum): part
+    :param output_file: where to write (BEWARE: Default is to override existing files)
+    :param include_header: useful when generating multiple Enum models into the same file (good for brief ones).
+    :param name_transform: additional transformation on name = name_transform(name, value)
     :return: Exception in case of error.
     """
     LOGGER.info(f"Generating {model_name} to {output_file.name}")
@@ -49,6 +59,8 @@ def generate_enums(urls, model_name, output_file, include_header=True):
         for r in results["results"]:
             value = r["id"]
             name = enumizy_name(r["text"])
+            if name_transform:
+                name = name_transform(name, value)
             if name in enum_pairs and enum_pairs[name] == value:
                 raise Exception(f"{name} already exists with value {value}, original string: {r['text']}")
             enum_pairs[name] = value
@@ -75,6 +87,25 @@ assert_equal(enumizy_name("Bolivia (Plurinational State of)"), "BOLIVIA")
 assert_equal(enumizy_name("Br. Indian Ocean Terr."), "BR_INDIAN_OCEAN_TERR")
 assert_equal(enumizy_name("Côte d'Ivoire"), "COTE_D_IVOIRE")
 assert_equal(enumizy_name("Dem. People's Rep. of Korea"), "DEM_PEOPLES_REP_OF_KOREA")
+assert_equal(enumizy_name("Dem. People's Rep. of Korea"), "DEM_PEOPLES_REP_OF_KOREA")
+assert_equal(enumizy_name("AG6 - All 6-digit HS commodities"), "AG6_ALL_6_DIGIT_HS_COMMODITIES")
+assert_equal(
+    enumizy_name("010119 - Horses; live, other than pure-bred breeding animals"),
+    "HORSES_LIVE_OTHER_THAN_PURE_BRED_BREEDING_ANIMALS"
+)
+assert_equal(
+    enumizy_name("010599 - Poultry; live, ducks, geese, turkeys and guinea fowls, weighing more than 185g"),
+    "POULTRY_LIVE_DUCKS_GEESE_TURKEYS_AND_GUINEA_FOWLS_WEIGHING_MORE_THAN_185G"
+)
+
+assert_equal(
+    classification_name_transform("HORSES_LIVE_OTHER_THAN_PURE_BRED_BREEDING_ANIMALS", "010119"),
+    "HORSES_LIVE_OTHER_THAN_PURE_BRED_BREEDING_ANIMALS_010119"
+)
+assert_equal(
+    classification_name_transform("POULTRY_LIVE_DUCKS_GEESE_TURKEYS_AND_GUINEA_FOWLS_WEIGHING_MORE_THAN_185", "010599"),
+    "POULTRY_LIVE_DUCKS_GEESE_TURKE___ING_MORE_THAN_185_010599"
+)
 
 # REAL DEAL
 enum_dir = "enums"
@@ -90,4 +121,18 @@ with open(f"{enum_dir}/country.py", "w") as output_file:
         output_file=output_file,
     )
 
+classification_dir = f"{enum_dir}/classification"
+safe_mkdir(classification_dir)
+classification_list = ["HS", "H0", "H1", "H2", "H3", "H4", "ST", "S1", "S2", "S3", "S4", "BEC", "EB02"]
+
+# TODO: Long-term make this is a tree-like class structure, long-long term have an entity service.
+# TODO: Short-tem maybe shorten the names and add the code to it, it's kinda useless when over 30 chars.
+for class_system in classification_list:
+    with open(f"{classification_dir}/{class_system}.py", "w") as output_file:
+        generate_enums(
+            urls=[f"https://comtrade.un.org/Data/cache/classification{class_system}.json"],
+            model_name=class_system,
+            output_file=output_file,
+            name_transform=classification_name_transform,
+        )
 
