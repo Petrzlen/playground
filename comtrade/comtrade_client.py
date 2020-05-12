@@ -20,6 +20,20 @@ MIN_YEAR = 1961
 MAX_YEAR = 2019
 
 
+class ComtradeException(Exception):
+    pass
+
+
+class ComtradeRetriableException(Exception):
+    """Catch this to retry network / comtrade network failures."""
+    pass
+
+
+class ComtradeQueryTooBig(Exception):
+    """Catch this to restrict filtering of your query (e.g. from AG6 to AG4, or all to Imports)."""
+    pass
+
+
 # TODO: Explore BULK download, since we want to get all of the Data:
 #       https://comtrade.un.org/data/doc/api/bulk/#DataRequests
 class ComtradeClient:
@@ -50,11 +64,16 @@ class ComtradeClient:
         def generate_years(start=MIN_YEAR, end=MAX_YEAR):
             return [str(year) for year in range(start, end+1, 1)]
 
-        # TODO generate_yearmonths if needed.
+        @staticmethod
+        def generate_yearmonths(start_year=MIN_YEAR, end_year=MAX_YEAR):
+            result = []
+            for year in ComtradeClient.Period.generate_years(start_year, end_year):
+                result.extend([f"{year}{month:0>2}" for month in range(1, 13)])
+            return result
 
     class Frequency(MMEnum):
         ANNUAL = "A"
-        MONTHLY = "M"
+        MONTHLY = "M"  # Was not able to get any data from 2008 USA
 
     class TradeFlow(MMEnum):
         # https://comtrade.un.org/data/cache/tradeRegimes.json
@@ -85,10 +104,10 @@ class ComtradeClient:
         ALL = "all"
         AG1 = "AG1"  # one-digit HS commodity codes
         AG2 = "AG2"  # two-digit HS commodity codes
-        AG3 = "AG3"  # three-digit HS commodity codes
-        AG4 = "AG4"  # four-digit HS commodity codes
+        AG3 = "AG3"  # three-digit HS commodity codes  # This doesn't seem to get any results.
+        AG4 = "AG4"  # four-digit HS commodity codes  # This is too much for USA 2008
         AG5 = "AG5"  # five-digit HS commodity codes
-        AG6 = "AG6"  # six-digit HS commodity codes
+        AG6 = "AG6"  # six-digit HS commodity codes  # This is too much for Slovakia 2013
 
     class OutputFormat(MMEnum):
         # USE_REQUEST_HEADER = None
@@ -103,14 +122,24 @@ class ComtradeClient:
         HUMAN_READABLE = "H"
         MACHINE_READABLE = "M"  # Matches JSON field names.
 
-    def get_trade_data(self, output_filepath: str, partner="703", period=Period.NOW, row_limit=100000):
+    def get_trade_data(
+            self,
+            output_filepath: str,
+            partner="703",
+            frequency=Frequency.ANNUAL,
+            period=Period.NOW,
+            classification_code=CommodityCode.AG4,
+            row_limit=100000
+    ):
         """
             Queries the UN COMTRADE GET API for the requested arguments and stores it locally into `output_filepath`.
             More features to come (see TODOs) around.
 
+            :param frequency: TODO
             :param output_filepath: where to output the downloaded dataset in case of success.
             :param partner: UN country code of which trade data is requested
             :param period: See ComtradeClient.Period for possible values, note ALL can lead to "query too complex".
+            :param classification_code: TODO
             :param row_limit: UN says that max is 100 000: https://comtrade.un.org/data/dev/portal#subscription
         """
         query_params = {
@@ -118,10 +147,10 @@ class ComtradeClient:
             "r": "all",
             # partner area.The area receiving the trade, based on the reporting areas data.
             "p": partner,
-            "freq": ComtradeClient.Frequency.ANNUAL,
+            "freq": frequency,
             "ps": period,
             "px": ComtradeClient.ClassificationCode.HS,  # classification scheme used
-            "cc": ComtradeClient.CommodityCode.AG6,  # result products classification code
+            "cc": classification_code,
             "rg": ComtradeClient.TradeFlow.ALL,  # imports / exports
             "type": ComtradeClient.TradeType.COMMODITIES,
             "fmt": ComtradeClient.OutputFormat.JSON,
@@ -145,29 +174,42 @@ class ComtradeClient:
     # TODO: Introduce specific errors.
     def _parse_dataset(self, response: requests.Response, query_params):
         if response.status_code != HTTPStatus.OK:
-            raise Exception(f"  Problem occurred, non-OK response code: {response.status_code}")
+            err_str = f"HTTP {response.status_code}: {response.content[:100]}"
+            if response.status_code in [HTTPStatus.GATEWAY_TIMEOUT, HTTPStatus.REQUEST_TIMEOUT, HTTPStatus.CONFLICT]:
+                raise ComtradeRetriableException(err_str)
+            raise ComtradeException(err_str)
 
         content = json.loads(response.content)
         if "validation" not in content:
-            raise Exception("Validation object expected")
+            raise ComtradeRetriableException(f"Validation object expected in response: {response.content[:100]}")
 
         v = content["validation"]
-        validation_status = v["status"]["value"]
-        if validation_status != 0:  # name = "ok"
-            # Exception: Maximum resultset is: 100000
-            self._logger.error(f"Validation Results: {v}")
-            raise Exception(v["message"])
 
         # Maybe we can do sth with these.
         item_count = v["count"]["value"]
         if item_count > query_params["max"]:
+            # This possibly leads into error 5003
             # TODO: Figure out if there is pagination, if Yes how to follow, if not how to bypass.
             self._logger.warning(f"item_count higher than max: {item_count} > {query_params['max']}")
+        if item_count == 0:
+            self._logger.warning("item_count is zero, this is likely unexpected")
+
+        validation_status = v["status"]["value"]
+        if validation_status != 0:  # name = "ok"
+            # TODO: Better classify, and make it retriable with increased filtering (e.g. AG6 -> AG4, or YYYY to YYYYMM)
+            # 5002: Query complexity: "your query is too complex. Please simplify.
+            # 5003: Result too large: you do not have permissions to access such a large resultset
+            # 5004: Invalid parameter: the selected query does not accept the passed option.
+            self._logger.error(f"Non-zero validation.status: {v}")
+            raise ComtradeQueryTooBig(v["message"])
+
+        self._logger.info(f"{v}")
         query_duration = v["count"]["durationSeconds"]
-        fetch_duration = v["datasetTimer"]["durationSeconds"]
+        dataset_timer = v["datasetTimer"]["durationSeconds"] if "datasetTimer" in v and v["datasetTimer"] else None
+
         self._logger.info(
             f"  Validated response, item count: {item_count}, UN query time: {query_duration}, " +
-            f"UN fetch_duration: {fetch_duration}",
+            f"UN datasetTimer: {dataset_timer}",
         )
         return content["dataset"]
 
