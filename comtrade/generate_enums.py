@@ -7,6 +7,8 @@ import sys
 from http import HTTPStatus
 from slugify import slugify
 
+from utils import safe_mkdir
+
 
 LOGGER = logging.getLogger("GenerateEnums")
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -75,8 +77,10 @@ assert_equal(enumizy_name("Côte d'Ivoire"), "COTE_D_IVOIRE")
 assert_equal(enumizy_name("Dem. People's Rep. of Korea"), "DEM_PEOPLES_REP_OF_KOREA")
 
 # REAL DEAL
-# TODO: Reorganize under enums/
-with open("comtrade_enums.py", "w") as output_file:
+enum_dir = "enums"
+safe_mkdir(enum_dir)
+with open(f"{enum_dir}/country.py", "w") as output_file:
+    # Merge partner/reporter Areas for one comprehensive list of Countries.
     generate_enums(
         urls=[
             "https://comtrade.un.org/Data/cache/partnerAreas.json",
@@ -86,11 +90,4 @@ with open("comtrade_enums.py", "w") as output_file:
         output_file=output_file,
     )
 
-# TODO: Maybe do parent like a sub-Enum:
-# with open("harmonized_system_enums.py", "w") as output_file:
-#     generate_enums(
-#         urls=["https://comtrade.un.org/Data/cache/classificationHS.json"],
-#         model_name="HS",
-#         output_file=output_file,
-#     )
 

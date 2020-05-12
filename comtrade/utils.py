@@ -1,4 +1,4 @@
-import locale
+import os
 
 from enum import Enum
 
@@ -15,3 +15,8 @@ def format_money(amount):
     # https://stackoverflow.com/questions/1823058/how-to-print-number-with-commas-as-thousands-separators
     # return locale.format("$%d", amount, grouping=True)  # for non-american
     return f"${amount:,}"
+
+
+def safe_mkdir(directory):
+    if not os.path.exists(directory):
+        os.mkdir(directory)
