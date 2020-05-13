@@ -1,4 +1,5 @@
 import os
+import time
 
 from enum import Enum
 
@@ -20,3 +21,12 @@ def format_money(amount):
 def safe_mkdir(directory):
     if not os.path.exists(directory):
         os.mkdir(directory)
+
+
+def print_and_sleep(seconds, logger=None):
+    if logger:
+        logger.info(f"Sleeping for {seconds}")
+    else:
+        print(f"Sleeping for {seconds}")
+
+    time.sleep(seconds)
