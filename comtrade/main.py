@@ -1,4 +1,3 @@
-# TODO: Generate useful Country lists (like G20, EU, Asia, Africa...).
 # TODO: Make it a part of ComtradeClient (e.g. the get_trade_data state / parameters are getting shady).
 # TODO: Add black formatting.
 
@@ -26,11 +25,7 @@ request_at = []
 
 cc_to_try = [ComtradeClient.CommodityCode.AG4, ComtradeClient.CommodityCode.AG2]
 client = ComtradeClient()
-for partner in reversed(Country.list_european_union()):
-# for partner in [Country.USA, Country.GERMANY, Country.CHINA, Country.CZECHIA]:
-    if partner in [Country.ALL, Country.SLOVAKIA]:
-        LOGGER.info(f"Skipping country {partner.name}")
-        continue
+for partner in Country.list_g20():
     LOGGER.info(f"============ Fetching country {partner.name} ============")
 
     directory = f"data/{partner.name.lower()}"

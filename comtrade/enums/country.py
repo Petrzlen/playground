@@ -35,6 +35,31 @@ class Country(MMEnum):
             Country.SWEDEN,
         ]
 
+    @staticmethod
+    def list_g20():
+        return [
+            Country.ARGENTINA,
+            Country.AUSTRALIA,
+            Country.BRAZIL,
+            Country.CANADA,
+            Country.CHINA,
+            Country.FRANCE,
+            Country.GERMANY,
+            Country.INDIA,
+            Country.INDONESIA,
+            Country.ITALY,
+            Country.JAPAN,
+            Country.MEXICO,
+            Country.RUSSIAN_FEDERATION,
+            Country.SAUDI_ARABIA,
+            Country.SOUTH_AFRICA,
+            Country.REP_OF_KOREA,
+            Country.TURKEY,
+            Country.UNITED_KINGDOM,
+            Country.USA,
+            # European Union
+        ]
+
     ALL = "all"
     AFGHANISTAN = "4"
     ALBANIA = "8"
