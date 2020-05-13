@@ -1,10 +1,9 @@
+# TODO: Explore BULK download, since we want to get all of the Data:
+#       https://comtrade.un.org/data/doc/api/bulk/#DataRequests
 # TODO: Manage to get all the data (learn to run from multiple IPs).
-# TODO: Add models for Countries (oo Czechoslovakia), Products (merge Comm, Services)
-#       Subtask: Figure out how to convert / align different classification schemes.
-# TODO: Add black formatting.
-# TODO: Somehow get Token, "You don't have enough right to access this page ... "
+# TODO: Somehow get the Authentication Token, "You don't have enough right to access this page ... "
 #       https://comtrade.un.org/data/doc/api/#APIKey
-# TODO: Refactor when writing a second scraper, now just get the data.
+# TODO: Long-term:Make it recover from machine suspense/failures
 
 import json
 import logging
@@ -24,18 +23,41 @@ class ComtradeException(Exception):
     pass
 
 
-class ComtradeRetriableException(Exception):
+class ComtradeRetriableException(ComtradeException):
     """Catch this to retry network / comtrade network failures."""
-    pass
+    @staticmethod
+    def list_http_codes():
+        return [
+            # Didn't experience yet, seen requests take >1000 seconds.
+            HTTPStatus.REQUEST_TIMEOUT,  # 408
+            # From the API documentation: If you hit a usage limit a 409 (conflict): error is returned,
+            # along with a message specifying why the request was blocked and when requests may resume.
+            HTTPStatus.CONFLICT,  # 409
+            # Happens, unsure why.
+            HTTPStatus.INTERNAL_SERVER_ERROR
+        ]
 
 
-class ComtradeQueryTooBig(Exception):
-    """Catch this to restrict filtering of your query (e.g. from AG6 to AG4, or all to Imports)."""
-    pass
+class ComtradeResultTooLarge(ComtradeException):
+    """ Validation error from ComtradeClient:
+    5003: Result too large: you do not have permissions to access such a large resultset
+
+    Catch this to restrict filtering of your query (e.g. from AG6 to AG4, or all to Imports)."""
+    @staticmethod
+    def list_comtrade_error_codes():
+        return [5003]
 
 
-# TODO: Explore BULK download, since we want to get all of the Data:
-#       https://comtrade.un.org/data/doc/api/bulk/#DataRequests
+class ComtradeInvalidParameters(ComtradeException):
+    """ Validation errors from the ComtradeClient:
+    5002: Query complexity: "your query is too complex. Please simplify.
+    5004: Invalid parameter: the selected query does not accept the passed option.
+    """
+    @staticmethod
+    def list_comtrade_error_codes():
+        return [5002, 5004]
+
+
 class ComtradeClient:
     """
     ComtradeClient implements a subset of UNs Public API https://comtrade.un.org/data/doc/api/#APIKey
@@ -153,13 +175,16 @@ class ComtradeClient:
             "cc": classification_code,
             "rg": ComtradeClient.TradeFlow.ALL,  # imports / exports
             "type": ComtradeClient.TradeType.COMMODITIES,
-            "fmt": ComtradeClient.OutputFormat.JSON,
+            "fmt": ComtradeClient.OutputFormat.JSON,  # TODO: Consider CSV, it's more compact than JSON.
             "max": row_limit,
             "head": ComtradeClient.HeadingFormat.MACHINE_READABLE,
         }
         url = ComtradeClient.API_BASE_URL + "?" + urlencode(query_params)
         self._logger.info(f"Sending GET request for url {url}")
 
+        # TODO: Add a requests utils, and collect some metrics on time it takes.
+        # E.g. https://comtrade.un.org/api/get?r=all&p=703&freq=A&ps=2006&px=HS&cc=AG6&rg=all&type=C&fmt=json&max=100000&head=M
+        # took a whopping 1258 seconds (91872 item count), although usually finishes in 100-200 seconds for AG6.
         start = time.time()
         response = requests.get(url)
         self._logger.info(
@@ -173,16 +198,18 @@ class ComtradeClient:
     # TODO: Work on retry-able errors (like timeouts, rate limits and so).
     # TODO: Introduce specific errors.
     def _parse_dataset(self, response: requests.Response, query_params):
-        response_snippet = str(response.content[:100])
         if response.status_code != HTTPStatus.OK:
+            # For 409 raw response data looks like: b'U\x00S\x00A\x00G\x00E\x00 \x00L\x00I\x00M\x00I\x00T\x00:\
+            # trying decoding: https://stackoverflow.com/questions/4735566/python-unicode-problem
+            response_snippet = response.text[:100]
             err_str = f"HTTP {response.status_code}: {response_snippet}"
-            if response.status_code in [HTTPStatus.GATEWAY_TIMEOUT, HTTPStatus.REQUEST_TIMEOUT, HTTPStatus.CONFLICT]:
+            if response.status_code in ComtradeRetriableException.list_http_codes():
                 raise ComtradeRetriableException(err_str)
             raise ComtradeException(err_str)
 
         content = json.loads(response.content)
         if "validation" not in content:
-            raise ComtradeRetriableException(f"Validation object expected in response: {response_snippet}")
+            raise ComtradeRetriableException(f"Validation object expected in response: {content}")
 
         v = content["validation"]
 
@@ -197,14 +224,14 @@ class ComtradeClient:
 
         validation_status = v["status"]["value"]
         if validation_status != 0:  # name = "ok"
-            # TODO: Better classify, and make it retriable with increased filtering (e.g. AG6 -> AG4, or YYYY to YYYYMM)
-            # 5002: Query complexity: "your query is too complex. Please simplify.
-            # 5003: Result too large: you do not have permissions to access such a large resultset
-            # 5004: Invalid parameter: the selected query does not accept the passed option.
-            self._logger.error(f"Non-zero validation.status: {v}")
-            raise ComtradeQueryTooBig(v["message"])
+            self._logger.warning(f"Non-zero validation.status: {v}")
+            if validation_status in ComtradeResultTooLarge.list_comtrade_error_codes():
+                raise ComtradeResultTooLarge(f"ResultTooLarge: item count: {item_count}: {v['message']}")
+            elif validation_status in ComtradeInvalidParameters.list_comtrade_error_codes():
+                raise ComtradeInvalidParameters(f"{validation_status}: {v['message']}")
+            else:
+                raise ComtradeException(f"Non-classified error: {validation_status}")
 
-        self._logger.info(f"{v}")
         query_duration = v["count"]["durationSeconds"]
         dataset_timer = v["datasetTimer"]["durationSeconds"] if "datasetTimer" in v and v["datasetTimer"] else None
 
