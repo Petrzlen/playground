@@ -110,16 +110,16 @@ assert_equal(
 # REAL DEAL
 enum_dir = "enums"
 safe_mkdir(enum_dir)
-with open(f"{enum_dir}/country.py", "w") as output_file:
-    # Merge partner/reporter Areas for one comprehensive list of Countries.
-    generate_enums(
-        urls=[
-            "https://comtrade.un.org/Data/cache/partnerAreas.json",
-            "https://comtrade.un.org/data/cache/reporterAreas.json",
-        ],
-        model_name="Country",
-        output_file=output_file,
-    )
+# with open(f"{enum_dir}/country.py", "w") as output_file:
+#     # Merge partner/reporter Areas for one comprehensive list of Countries.
+#     generate_enums(
+#         urls=[
+#             "https://comtrade.un.org/Data/cache/partnerAreas.json",
+#             "https://comtrade.un.org/data/cache/reporterAreas.json",
+#         ],
+#         model_name="Country",
+#         output_file=output_file,
+#     )
 
 classification_dir = f"{enum_dir}/classification"
 safe_mkdir(classification_dir)

@@ -3,6 +3,38 @@ from utils import MMEnum
 
 
 class Country(MMEnum):
+    @staticmethod
+    def list_european_union():
+        return [
+            Country.AUSTRIA,
+            Country.BELGIUM,
+            Country.BULGARIA,
+            Country.CROATIA,
+            Country.CYPRUS,
+            Country.CZECHIA,
+            Country.DENMARK,
+            Country.ESTONIA,
+            Country.FINLAND,
+            Country.FRANCE,
+            Country.GERMANY,
+            Country.GREECE,
+            Country.HUNGARY,
+            Country.IRELAND,
+            Country.ITALY,
+            Country.LATVIA,
+            Country.LITHUANIA,
+            Country.LUXEMBOURG,
+            Country.MALTA,
+            Country.NETHERLANDS,
+            Country.POLAND,
+            Country.PORTUGAL,
+            Country.ROMANIA,
+            Country.SLOVAKIA,
+            Country.SLOVENIA,
+            Country.SPAIN,
+            Country.SWEDEN,
+        ]
+
     ALL = "all"
     AFGHANISTAN = "4"
     ALBANIA = "8"
