@@ -30,3 +30,4 @@ def print_and_sleep(seconds, logger=None):
         print(f"Sleeping for {seconds}")
 
     time.sleep(seconds)
+

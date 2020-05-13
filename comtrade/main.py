@@ -1,5 +1,4 @@
 # TODO: Generate useful Country lists (like G20, EU, Asia, Africa...).
-# TODO: Use logger, Use time in logger, Use Exception
 # TODO: Make it a part of ComtradeClient (e.g. the get_trade_data state / parameters are getting shady).
 # TODO: Add black formatting.
 
@@ -12,7 +11,13 @@ from comtrade_client import ComtradeClient, ComtradeRetriableException, Comtrade
 from enums.country import Country
 from utils import print_and_sleep, safe_mkdir
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+LOGGER = logging.getLogger("Controller")
 
 # TODO: Make a fancier rate-limiting lib once it's needed more (more scrapers to come).
 start = time.time()
@@ -21,13 +26,12 @@ request_at = []
 
 cc_to_try = [ComtradeClient.CommodityCode.AG4, ComtradeClient.CommodityCode.AG2]
 client = ComtradeClient()
-# for partner in reversed(Country.list_european_union()):
-for partner in [Country.USA, Country.GERMANY, Country.CHINA, Country.CZECHIA]:
-    # if partner in [Country.ALL, Country.SLOVAKIA] or str(partner.name) < str(Country.ANTIGUA_AND_BARBUDA.name):
+for partner in reversed(Country.list_european_union()):
+# for partner in [Country.USA, Country.GERMANY, Country.CHINA, Country.CZECHIA]:
     if partner in [Country.ALL, Country.SLOVAKIA]:
-        print(f"Skipping country {partner.name}")
+        LOGGER.info(f"Skipping country {partner.name}")
         continue
-    print(f"============ Fetching country {partner.name} ============")
+    LOGGER.info(f"============ Fetching country {partner.name} ============")
 
     directory = f"data/{partner.name.lower()}"
     safe_mkdir(directory)
@@ -40,7 +44,7 @@ for partner in [Country.USA, Country.GERMANY, Country.CHINA, Country.CZECHIA]:
         output_filepath = f"{directory}/{period}.json"
         # Don't override existing (if messed up, you have to manually remove the file)
         if os.path.exists(output_filepath):
-            print(f"Skipping existing {output_filepath}")
+            LOGGER.info(f"Skipping existing {output_filepath}")
             continue
 
         def get_trade_data(cc, retry=False):
@@ -50,7 +54,7 @@ for partner in [Country.USA, Country.GERMANY, Country.CHINA, Country.CZECHIA]:
             request_at.append(now)
             # Note the inside part of () is a generator. Minor optimization as list comprehension runs in a new func.
             request_count_last_hour = len(list(t for t in request_at if t > now - 3600))
-            print(f"RateLimit hint: requests last hour: {request_count_last_hour}")
+            LOGGER.info(f"RateLimit Hint: requests last hour: {request_count_last_hour}")
 
             try:
                 client.get_trade_data(
@@ -62,11 +66,11 @@ for partner in [Country.USA, Country.GERMANY, Country.CHINA, Country.CZECHIA]:
                 )
             except ComtradeRetriableException as e:
                 if retry:
-                    print(f"Retrying once for {partner.name} for {period} as exception: {e}")
+                    LOGGER.info(f"Retrying once for {partner.name} for {period} as exception: {e}")
                     print_and_sleep(240)  # There are odds we got rate-limited, so chill out for a while.
                     get_trade_data(cc, retry=False)
                 else:
-                    print(f"Retry failed, so giving up on {partner.name} for {period} as exception: {e}")
+                    LOGGER.info(f"Retry failed, so giving up on {partner.name} for {period} as exception: {e}")
                     # This doesn't create the data file, so a re-run can fill it in.
 
         try:
@@ -75,10 +79,10 @@ for partner in [Country.USA, Country.GERMANY, Country.CHINA, Country.CZECHIA]:
             cc_previous = classification_code
             cc_i = min(len(cc_to_try) - 1, cc_i + 1)
             classification_code = cc_to_try[cc_i]
-            print(f"Falling back from {cc_previous} to {classification_code} as {e}")
+            LOGGER.info(f"Falling back from {cc_previous} to {classification_code} as {e}")
             # no change
             if cc_previous == classification_code:
-                print(f"ERROR: Cannot get data for {partner.name} for {period} as no where to fall back.")
+                LOGGER.error(f"Cannot get data for {partner.name} for {period} as no where to fall back.")
             else:
                 # TODO: Support multiple fall-backs.
                 get_trade_data(classification_code)

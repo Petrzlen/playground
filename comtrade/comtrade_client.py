@@ -15,6 +15,7 @@ from urllib.parse import urlencode
 
 from utils import MMEnum
 
+LOGGER = logging.getLogger("ComtradeClient")
 MIN_YEAR = 1961
 MAX_YEAR = 2019
 
@@ -74,7 +75,6 @@ class ComtradeClient:
     - Classification codes (cc) are limited to 20 items. ALL is always a valid classification code.
     """
     API_BASE_URL = "https://comtrade.un.org/api/get"
-    _logger = logging.getLogger("ComtradeClient")
 
     # You can also pass in "YYYY", "YYYYMM" like 201911
     class Period(MMEnum):
@@ -180,14 +180,14 @@ class ComtradeClient:
             "head": ComtradeClient.HeadingFormat.MACHINE_READABLE,
         }
         url = ComtradeClient.API_BASE_URL + "?" + urlencode(query_params)
-        self._logger.info(f"Sending GET request for url {url}")
+        LOGGER.info(f"Sending GET request for url {url}")
 
         # TODO: Add a requests utils, and collect some metrics on time it takes.
         # E.g. https://comtrade.un.org/api/get?r=all&p=703&freq=A&ps=2006&px=HS&cc=AG6&rg=all&type=C&fmt=json&max=100000&head=M
         # took a whopping 1258 seconds (91872 item count), although usually finishes in 100-200 seconds for AG6.
         start = time.time()
         response = requests.get(url)
-        self._logger.info(
+        LOGGER.info(
             f"  Received response {response.status_code} size={len(response.content)} in {time.time() - start} seconds"
         )
 
@@ -218,13 +218,13 @@ class ComtradeClient:
         if item_count > query_params["max"]:
             # This possibly leads into error 5003
             # TODO: Figure out if there is pagination, if Yes how to follow, if not how to bypass.
-            self._logger.warning(f"item_count higher than max: {item_count} > {query_params['max']}")
+            LOGGER.warning(f"item_count higher than max: {item_count} > {query_params['max']}")
         if item_count == 0:
-            self._logger.warning("item_count is zero, this is likely unexpected")
+            LOGGER.warning("item_count is zero, this is likely unexpected")
 
         validation_status = v["status"]["value"]
         if validation_status != 0:  # name = "ok"
-            self._logger.warning(f"Non-zero validation.status: {v}")
+            LOGGER.warning(f"Non-zero validation.status: {v}")
             if validation_status in ComtradeResultTooLarge.list_comtrade_error_codes():
                 raise ComtradeResultTooLarge(f"ResultTooLarge: item count: {item_count}: {v['message']}")
             elif validation_status in ComtradeInvalidParameters.list_comtrade_error_codes():
@@ -235,7 +235,7 @@ class ComtradeClient:
         query_duration = v["count"]["durationSeconds"]
         dataset_timer = v["datasetTimer"]["durationSeconds"] if "datasetTimer" in v and v["datasetTimer"] else None
 
-        self._logger.info(
+        LOGGER.info(
             f"  Validated response, item count: {item_count}, UN query time: {query_duration}, " +
             f"UN datasetTimer: {dataset_timer}",
         )
