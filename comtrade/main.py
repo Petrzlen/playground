@@ -28,7 +28,10 @@ request_at = []
 cc_to_try = [ComtradeClient.CommodityCode.AG4, ComtradeClient.CommodityCode.AG2]
 client = ComtradeClient()
 safe_mkdir("data")
-for partner in Country.list_g20():
+for partner in Country:
+    if partner in [Country.ALL]:
+        LOGGER.info(f"Skipping blacklisted country {partner.name}")
+        continue
     LOGGER.info(f"============ Fetching country {partner.name} ============")
 
     directory = f"data/{partner.name.lower()}"
