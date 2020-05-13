@@ -1,5 +1,7 @@
-# TODO: Explore BULK download, since we want to get all of the Data:
+# TODO: Explore/Implement BULK download, since we want to get all of the Data:
 #       https://comtrade.un.org/data/doc/api/bulk/#DataRequests
+#       Notice: this API is only available to users with a premium site license.
+# TODO: Explore https://comtrade.un.org/ for other uses.
 # TODO: Manage to get all the data (learn to run from multiple IPs).
 # TODO: Somehow get the Authentication Token, "You don't have enough right to access this page ... "
 #       https://comtrade.un.org/data/doc/api/#APIKey
@@ -106,6 +108,9 @@ class ComtradeClient:
         RE_IMPORTS = "4"
 
     class ClassificationCode(MMEnum):
+        """
+        See classification code availability by partner / year: https://comtrade.un.org/db/mr/daReportersResults.aspx
+        """
         HS = "HS"
         HS_0_1992 = "H0"
         HS_1_1996 = "H1"
@@ -113,6 +118,12 @@ class ComtradeClient:
         HS_3_2007 = "H3"
         HS_4_2012 = "H4"
         SITC = "ST"
+        """
+        WARNING: only older data was submitted to UN Comtrade in SITC. With rare exceptions no data will be returned
+        in queries from 1992 or later if code ST, meaning "Standard International Trade Classification (SITC),
+        as reported" is chosen. If you require data formatted in the SITC classification,
+        it is better to use S1 for SITC Rev. 1.
+        """
         SITC_1 = "S1"
         SITC_2 = "S2"
         SITC_3 = "S3"

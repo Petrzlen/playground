@@ -1,5 +1,7 @@
 # TODO: Make it a part of ComtradeClient (e.g. the get_trade_data state / parameters are getting shady).
 # TODO: Add black formatting.
+# TODO: Use threadpools (instead of running it in multiple shells, note the shared rate limiting).
+# TODO: Use multiple IP Proxies for a more massive parallelization (to likely hit my frugal Comcast limits).
 
 import logging
 import os
@@ -25,6 +27,7 @@ request_at = []
 
 cc_to_try = [ComtradeClient.CommodityCode.AG4, ComtradeClient.CommodityCode.AG2]
 client = ComtradeClient()
+safe_mkdir("data")
 for partner in Country.list_g20():
     LOGGER.info(f"============ Fetching country {partner.name} ============")
 
