@@ -197,7 +197,11 @@ class ComtradeClient:
         # E.g. https://comtrade.un.org/api/get?r=all&p=703&freq=A&ps=2006&px=HS&cc=AG6&rg=all&type=C&fmt=json&max=100000&head=M
         # took a whopping 1258 seconds (91872 item count), although usually finishes in 100-200 seconds for AG6.
         start = time.time()
-        response = requests.get(url)
+        try:
+            response = requests.get(url)
+        except ConnectionError as e:
+            raise ComtradeRetriableException(e)
+
         LOGGER.info(
             f"  Received response {response.status_code} size={len(response.content)} in {time.time() - start} seconds"
         )
