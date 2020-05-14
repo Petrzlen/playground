@@ -112,7 +112,7 @@ def scrape_all():
     # E.g. https://comtrade.un.org/api/get?r=all&p=703&freq=A&ps=2006&px=HS&cc=AG6&rg=all&type=C&fmt=json&max=100000&head=M
     # took a whopping 1258 seconds (91872 item count), although usually finishes in 100-200 seconds for AG6.
     cc_to_try = [comtrade_client.CommodityCode.AG2]
-    for partner in Country.list_g20():
+    for partner in Country:
         if partner in [Country.ALL]:
             LOGGER.info(f"{partner.name}: Skipping blacklisted country")
             continue
