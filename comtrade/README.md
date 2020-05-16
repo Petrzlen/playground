@@ -37,5 +37,5 @@ Hit me up with a question, feature or a pull request!
 * WCO (World Customs Organizaton)
 
 ### Useful Links
-
-https://github.com/UK-BIS-Analysis/trademap
+* Very nice slice and dice visualization from [OCE](https://oec.world/en/visualize/tree_map/hs92/export/svk/show/8703/2017/)
+* Nice visualization for relations between countries from [GED](https://viz.ged-project.de/?lang=en)

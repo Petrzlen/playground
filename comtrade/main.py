@@ -67,7 +67,7 @@ def scrape(params):
     # 4. Query for data
     try:
         response = requests.get(url)
-    except ConnectionError as e:
+    except requests.exceptions.ConnectionError as e:
         raise comtrade_client.ComtradeRetriableException(e)
     # TODO: Pretty print content size
     LOGGER.info(f"  Received {response.status_code} size={len(response.content)} in {time.time() - start} seconds")
@@ -95,7 +95,7 @@ def scrape_with_retry(partner, period, classification_code, retry_count=0):
             if attempt < retry_count:
                 LOGGER.warning(f"{partner.name},{period}: Retrying {retry_count - attempt} more times as exception: {e}")
                 # There are odds we got rate-limited, so exponentially chill out for a while.
-                print_and_sleep(2 ** attempt * 300)
+                print_and_sleep(2 ** attempt * 300, LOGGER)
             else:
                 LOGGER.error(f"{partner.name},{period}: Retry failed, giving up. Exception: {e}")
                 # This doesn't create the data file, so a re-run can fill it in.
@@ -112,7 +112,7 @@ def scrape_all():
     # E.g. https://comtrade.un.org/api/get?r=all&p=703&freq=A&ps=2006&px=HS&cc=AG6&rg=all&type=C&fmt=json&max=100000&head=M
     # took a whopping 1258 seconds (91872 item count), although usually finishes in 100-200 seconds for AG6.
     cc_to_try = [comtrade_client.CommodityCode.AG2]
-    for partner in Country:
+    for partner in reversed(list(Country)):
         if partner in [Country.ALL]:
             LOGGER.info(f"{partner.name}: Skipping blacklisted country")
             continue
