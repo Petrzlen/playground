@@ -7,3 +7,6 @@ setup:
 	pip install -e .
 	pip install -r requirements.txt
 
+.PHONE: venv
+venv:
+	source venv/bin/activate
