@@ -125,17 +125,20 @@ def generate_schema(dataset):
     #     structure:Name(lang=en|fr).text<dataset.name>
 
     root = ElementTree.fromstring(response.text)
-    # prepared = root.find("Prepared").text
-    # print(prepared)
 
-    for child in root:
-        print(child.tag, child.attrib)
-        for grandchild in child:
-            print("  ", grandchild.tag, grandchild.attrib, grandchild.text)
-            for ggchild in grandchild:
-                print("    ", ggchild.tag, ggchild.attrib, ggchild.text)
-                for gggchild in ggchild:
-                    print("      ", gggchild.tag, gggchild.attrib, gggchild.text)
+    code_lists_tag = root.find("message:CodeLists", namespaces)
+    for code_list_tag in code_lists_tag:
+        print("CodeList.id:", code_list_tag.attrib["id"])
+        code_list_name_tag = code_list_tag.find(".//structure:Name[@xml:lang='en']", namespaces)
+        print("CodeList.name[en]:", code_list_name_tag.text)
+        for code_tag in code_list_tag.findall("structure:Code", namespaces):
+            description_tag = code_tag.find(".//structure:Description[@xml:lang='en']", namespaces)
+            code_description = description_tag.text
+            code_value = code_tag.attrib["value"]
+            # TODO(entity): Once we allow relationships between.
+            # code_parent_code = code_tag.attrib.get("parentCode")
+            print("Code:", code_description, code_value)
+        break
 
 
 def generate_database_identifiers():
@@ -191,7 +194,7 @@ def get_and_store_dataset(
 
 
 safe_mkdir("data")
-# generate_schema("QNA")
+generate_schema("QNA")
 
 # TODO: Verify that the observation keys are keys into the structure(schema), e.g. "53:76:1:1:1"
 # TODO: Figure out why there are so many values for an observation: [5242552.583,1,null,36,0,null]
@@ -202,11 +205,11 @@ safe_mkdir("data")
 #       "0:0:0:0:0": [29276700.0, 0, null, 0, 0, null],
 #       "0:0:0:1:1": [28479600.0, 1, null, 0, 0, null],
 #       ....
-get_and_store_dataset("QNA", filepath="data/test.json", start_period=Period(year="2019"), content_type=ContentType.JSON)
+# get_and_store_dataset("QNA", filepath="data/test.json", start_period=Period(year="2019"), content_type=ContentType.JSON)
 # TODO: Normalize currencies.
 # The CSV version is much more readable / parsable (also easier to merge multiple years).
 # "JPN","Japan","GFSPB","Public sector","CARSA","","A","Annual","2019","2019","JPY","Yen","6","Millions",,,29276700,,
-get_and_store_dataset("QNA", filepath="data/test.csv", start_period=Period(year="2019"), content_type=ContentType.CSV)
+# get_and_store_dataset("QNA", filepath="data/test.csv", start_period=Period(year="2019"), content_type=ContentType.CSV)
 
 
 
