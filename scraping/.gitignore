@@ -1,4 +1,6 @@
+**/__pycache__
 bin
 scraping.egg-info
 venv
 .idea
+.~lock*

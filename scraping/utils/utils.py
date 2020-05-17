@@ -1,4 +1,6 @@
+import logging
 import os
+import sys
 import time
 
 from enum import Enum
@@ -31,3 +33,12 @@ def print_and_sleep(seconds, logger=None):
 
     time.sleep(seconds)
 
+
+def set_basic_logging_config(name):
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)-8s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    return logging.getLogger(name)

@@ -4,24 +4,16 @@
 # TODO: Eventually: Use multiple IP Proxies for a more massive parallelization (to likely hit my frugal Comcast limits).
 
 import json
-import logging
 import os
 import requests
-import sys
 import time
 
 import comtrade.api as api
 
 from comtrade.enums.country import Country
-from utils.utils import print_and_sleep, safe_mkdir
+from utils.utils import print_and_sleep, safe_mkdir, set_basic_logging_config
 
-logging.basicConfig(
-    stream=sys.stdout,
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-LOGGER = logging.getLogger("Controller")
+LOGGER = set_basic_logging_config("Comtrade")
 
 
 def get_output_filepath(partner, period, **kwargs):
