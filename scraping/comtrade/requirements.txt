@@ -1,4 +1,0 @@
-logging
-pytest
-python-slugify
-requests

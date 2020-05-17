@@ -1,5 +1,5 @@
 """
-comtrade_client implements a subset of UNs Public API https://comtrade.un.org/data/doc/api/#APIKey
+comtrade.api implements a subset of UNs Public API https://comtrade.un.org/data/doc/api/#APIKey
 
 BEWARE of the following usage limits:
 - Rate limit (guest): 1 request every second (per IP address or authenticated user).
@@ -22,12 +22,11 @@ NOTE:
 import json
 import logging
 import requests
-import time
 
 from http import HTTPStatus
 from urllib.parse import urlencode
 
-from utils import MMEnum
+from utils.utils import MMEnum
 
 LOGGER = logging.getLogger("ComtradeClient")
 MIN_YEAR = 1961
