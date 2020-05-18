@@ -32,6 +32,7 @@ LOGGER = logging.getLogger("ComtradeClient")
 MIN_YEAR = 1961
 MAX_YEAR = 2019
 # Hard limit for /get/, even if max set, if the results set is over it, it will 5003: ComtradeResultTooLarge
+# N says that max is 100 000: https://comtrade.un.org/data/dev/portal#subscription
 ROW_LIMIT = 100000
 API_BASE_URL = "https://comtrade.un.org/api/get"
 
@@ -173,11 +174,9 @@ def create_url(
         More features to come (see TODOs) around.
 
         :param frequency: TODO
-        :param output_filepath: where to output the downloaded dataset in case of success.
         :param partner: UN country code of which trade data is requested
         :param period: See ComtradeClient.Period for possible values, note ALL can lead to "query too complex".
         :param classification_code: TODO
-        :param row_limit: UN says that max is 100 000: https://comtrade.un.org/data/dev/portal#subscription
     """
     query_params = {
         # reporting area: WHO reported the trade to UNSD.

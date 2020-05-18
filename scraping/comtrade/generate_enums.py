@@ -1,14 +1,13 @@
+import functools
 import json
-import logging
 import requests
-import sys
 
 from utils.enums import generate_enums
 from utils.test import assert_equal
-from utils.utils import safe_mkdir
+from utils.utils import safe_mkdir, set_basic_logging_config
 
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+set_basic_logging_config(__name__)
 
 
 def classification_name_transform(name, value):
@@ -17,12 +16,12 @@ def classification_name_transform(name, value):
     return name + "_" + value
 
 
-def parse_comtrade_schema_response(response: requests.Response):
+def parse_comtrade_schema_response(response: requests.Response, model_name):
     response_results = json.loads(response.content)
-    raw_name_to_values = {}
+    model_to_name_to_values = {model_name: {}}
     for r in response_results["results"]:
-        raw_name_to_values[r["text"]] = r["id"]
-    return raw_name_to_values
+        model_to_name_to_values[model_name][r["text"]] = r["id"]
+    return model_to_name_to_values
 
 
 # Inline tests
@@ -38,17 +37,15 @@ assert_equal(
 # REAL DEAL
 enum_dir = "enums"
 safe_mkdir(enum_dir)
-with open(f"{enum_dir}/country.py", "w") as output_file:
-    # Merge partner/reporter Areas for one comprehensive list of Countries.
-    generate_enums(
-        urls=[
-            "https://comtrade.un.org/Data/cache/partnerAreas.json",
-            "https://comtrade.un.org/data/cache/reporterAreas.json",
-        ],
-        model_name="Country",
-        output_file=output_file,
-        parse_response=parse_comtrade_schema_response,
-    )
+# Merge partner/reporter Areas for one comprehensive list of Countries.
+generate_enums(
+    urls=[
+        "https://comtrade.un.org/Data/cache/partnerAreas.json",
+        "https://comtrade.un.org/data/cache/reporterAreas.json",
+    ],
+    output_filepath=f"{enum_dir}/country.py",
+    parse_response=functools.partial(parse_comtrade_schema_response, model_name="Country"),
+)
 
 # classification_dir = f"{enum_dir}/classification"
 # safe_mkdir(classification_dir)
@@ -57,12 +54,11 @@ with open(f"{enum_dir}/country.py", "w") as output_file:
 # # TODO: Long-term make this is a tree-like class structure, long-long term have an entity service.
 # # TODO: Short-tem maybe shorten the names and add the code to it, it's kinda useless when over 30 chars.
 # for class_system in classification_list:
-#     with open(f"{classification_dir}/{class_system}.py", "w") as output_file:
-#         generate_enums(
-#             urls=[f"https://comtrade.un.org/Data/cache/classification{class_system}.json"],
-#             model_name=class_system,
-#             output_file=output_file,
-#             parse_response=parse_comtrade_schema_response,
-#             name_transform=classification_name_transform,
-#         )
+#     generate_enums(
+#         urls=[f"https://comtrade.un.org/Data/cache/classification{class_system}.json"],
+#         model_name=class_system,
+#         output_filepath=f"{classification_dir}/{class_system}.py",
+#         parse_response=parse_comtrade_schema_response,
+#         name_transform=classification_name_transform,
+#     )
 

@@ -29,7 +29,7 @@ def get_output_filepath(partner, period, **kwargs):
     return output_filepath
 
 
-# TODO: Create a fancier rate-limiting library.
+# TODO: Eventually create a fancier rate-limiting library.
 request_count = 0
 request_at = []
 
@@ -104,8 +104,8 @@ def scrape_all():
     # E.g. https://comtrade.un.org/api/get?r=all&p=703&freq=A&ps=2006&px=HS&cc=AG6&rg=all&type=C&fmt=json&max=100000&head=M
     # took a whopping 1258 seconds (91872 item count), although usually finishes in 100-200 seconds for AG6.
     cc_to_try = [api.CommodityCode.AG2]
-    for partner in [Country.MALI]:
-        if partner in [Country.ALL]:
+    for partner in Country:
+        if partner in [Country.ALL, Country.WORLD]:
             LOGGER.info(f"{partner.name}: Skipping blacklisted country")
             continue
         LOGGER.info(f"{partner.name}:========= START ==========")
