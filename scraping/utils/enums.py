@@ -6,6 +6,7 @@ from slugify import slugify
 from http import HTTPStatus
 
 LOGGER = logging.getLogger(__name__)
+EXTRA_PREFIX = "VAL_"
 
 
 def enumizy_name(name: str) -> str:
@@ -18,10 +19,14 @@ def enumizy_name(name: str) -> str:
     ]
     for p in replace_pairs:
         name = re.sub(p[0], p[1], name)
-    slug = slugify(name).upper().replace("-", "_")
+    upper_slug = slugify(name).upper().replace("-", "_")
     # We could've made this RegEx part of replace_pairs, but unsure how it deals with non-ASCII starting characters.
     # Enums names must start with a letter.
-    return re.sub(r"^[^a-zA-Z]*", "", slug)
+    name = re.sub(r"^[^a-zA-Z]*", "", upper_slug)
+    # The case when there are no [^a-zA-Z] in the whole string.
+    if len(name) == 0:
+        return EXTRA_PREFIX + upper_slug
+    return name
 
 
 def generate_enums(urls, output_filepath, parse_response, include_header=True, name_transform=None):
@@ -60,8 +65,9 @@ def generate_enums(urls, output_filepath, parse_response, include_header=True, n
 
                 # Store
                 orig_value = model_to_name_to_values[model_name].get(name, None)
-                if orig_value != value:
-                    Exception(f"For {model_name}, tried to override {name}:{orig_value} with a different value {value}")
+                if orig_value and orig_value != value:
+                    # Meaning the caller is mapping two different values into the same id.
+                    raise Exception(f"For {model_name}: tried to override {orig_value} with {value} for {name}")
                 model_to_name_to_values[model_name][name] = value
 
     with open(output_filepath, "w") as output_file:
@@ -76,9 +82,10 @@ def generate_enums(urls, output_filepath, parse_response, include_header=True, n
             # TODO: Maybe append a docstring from the generator metadata.
             for name, value in name_values.items():
                 output_file.write(f"    {name} = \"{value}\"\n")
-            output_file.write("\n")
 
             LOGGER.info("... Generating done.")
+
+        output_file.write("\n")
 
     # Print some fun-facts lol
     LOGGER.info(f"Longest name was: {longest_name}")
