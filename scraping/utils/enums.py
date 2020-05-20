@@ -9,6 +9,11 @@ LOGGER = logging.getLogger(__name__)
 EXTRA_PREFIX = "VAL_"
 
 
+def titlezy_name(name: str) -> str:
+    """From 'Some_GARBAGE-str blah' creates SomeGarbageStrBlah, good for class names."""
+    return re.sub(r'[-/ ]', "", name.replace("_", " ").title())
+
+
 def enumizy_name(name: str) -> str:
     replace_pairs = [
         (r"d'", "d "),
@@ -19,7 +24,7 @@ def enumizy_name(name: str) -> str:
     ]
     for p in replace_pairs:
         name = re.sub(p[0], p[1], name)
-    upper_slug = slugify(name).upper().replace("-", "_")
+    upper_slug = slugify(name).upper().replace("-", "_").replace("/", "_")
     # We could've made this RegEx part of replace_pairs, but unsure how it deals with non-ASCII starting characters.
     # Enums names must start with a letter.
     name = re.sub(r"^[^a-zA-Z]*", "", upper_slug)
@@ -29,7 +34,14 @@ def enumizy_name(name: str) -> str:
     return name
 
 
-def generate_enums(urls, output_filepath, parse_response, include_header=True, name_transform=None):
+def generate_enums(
+    urls,
+    output_filepath,
+    parse_response,
+    include_header=True,
+    name_transform=None,
+    ignore_status_codes=None,
+):
     """Generate Enum `model_name` from Entities merged from `urls` written into `output_file`.
 
     :param urls: merge all key/values from these urls
@@ -37,6 +49,7 @@ def generate_enums(urls, output_filepath, parse_response, include_header=True, n
     :param parse_response: function from requests.Response to a dict(ModelName -> tuple(emum name, enum value)).
     :param include_header: useful when generating multiple Enum models into the same file (good for brief ones).
     :param name_transform: additional transformation on name = name_transform(name, value)
+    :param ignore_status_codes: if present, the results with these HTTP status code will be ignored
     :return: Exception in case of error.
     """
     LOGGER.info(f"Generating enums from {len(urls)} urls to {output_filepath}")
@@ -47,7 +60,14 @@ def generate_enums(urls, output_filepath, parse_response, include_header=True, n
         LOGGER.info(f"Fetching data from {url}")
         response = requests.get(url)
         if response.status_code != HTTPStatus.OK:
-            raise Exception(f"Non 200 status code {response.status_code} for {url}")
+            err_msg = f"Non 200 status code {response.status_code} for {url}"
+            if ignore_status_codes and response.status_code in ignore_status_codes:
+                LOGGER.warning(f"Ignoring response {response.status_code} as in ignore list: {response.text[:100]}")
+                continue
+            # TODO HTTP 400 from OECD means database not found, this is a too general place to be at.
+            if response.status_code in [HTTPStatus.BAD_REQUEST, HTTPStatus.NOT_FOUND]:
+                raise FileNotFoundError(err_msg)
+            raise Exception(err_msg)
         LOGGER.info("... Fetching done.")
 
         data = parse_response(response)
@@ -67,7 +87,11 @@ def generate_enums(urls, output_filepath, parse_response, include_header=True, n
                 orig_value = model_to_name_to_values[model_name].get(name, None)
                 if orig_value and orig_value != value:
                     # Meaning the caller is mapping two different values into the same id.
-                    raise Exception(f"For {model_name}: tried to override {orig_value} with {value} for {name}")
+                    # TODO, maybe generate a backup name for it? E.g. VAR_1, VAR_2, ... .
+                    # raise Exception(
+                    LOGGER.warning(
+                        f"For {model_name}: tried to override {orig_value} with {value} for {name}({raw_name})"
+                    )
                 model_to_name_to_values[model_name][name] = value
 
     with open(output_filepath, "w") as output_file:

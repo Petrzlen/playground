@@ -2,6 +2,8 @@
 This `oecd` driver essentially implements a subset of [OECD's documentation](https://data.oecd.org/api/sdmx-json-documentation/).
 If you familiar with `pandas`, you should prefer to use [pandaSDMX](https://pandasdmx.readthedocs.io/en/v1.0/) or learn it. It supports many more SDMX data sources than OECD.
 
+They have a LOT of data on these countries. E.g. checkout [granularity on GDP](https://stats.oecd.org/Index.aspx?DatasetCode=SNA_TABLE1) and the list of datasets on the right.
+
 ## Known limitation and implementation details (copied from OECD spec)
 * Must be `https`
 * Only anonymous queries are supported, there is no authentication
@@ -14,6 +16,54 @@ If you familiar with `pandas`, you should prefer to use [pandaSDMX](https://pand
 * TODO: Errors are not returned in the JSON format but HTTP status codes and messages are set according to the Web Services Guidelines
 * TODO: 401 Unauthorized is returned if a non-authorised dataset is requested
 * TODO: The source (or Agency ID) parameter in the REST query is mandatory but the `ALL` keyword is supported
+
+UnitCodelist
+PowercodeCodelist
+ReferenceperiodCodelist
+TimeFormatCodelist
+CliUnitCodelist
+CliPowercodeCodelist
+
+## Some of datasets
+A lot the codes (and potentially interesting stats) can be found in the [How's Life? 2020 Measuring Well-being](https://books.google.com/books?id=bJLVDwAAQBAJ&pg=PA89#v=onepage&q&f=false) by OECD.
+Note: To conver this into `db_code_manual_list` just `awk '{print $2}' /tmp/stuff | xargs | sed 's/ /", "/g'`
+
+* AEA
+* AEI_OTHER (Anti Environment Indicators)
+* AIR_GHG (Greenhouse Gas Emissions)
+* AV_AN_WAGE (Average Annual Wages)
+* CITIES (Metropolitan Areas)
+* DUR_I (Unemployment by Duration)
+* EAG_NEAC (Educational Attainment and Labour Force Status)
+* EAG_TRANS (Transition from School to Work)
+* GENDER_EMP (Gender Equality in Employment)
+* GREEN_GROWTH
+* FIN_IND_FBS (Financial Indicators - Stocks)
+* HH_DASH (Household Dashboard)
+* IDD (Income Distribution Database)
+* JOBQ (Job Quality)
+* LFS_SEXAGE_I_R (LFS (Labour Force Statistics) by Sex and Age): Transition from school to work.
+* MATERIAL_RESOURCES: 
+* MEI (Composite Leading Indicators)
+* MEI_CLI
+* MIG (International Migration Database)
+* MSTI_PUB (Main Science and Technology Indicators)
+* NAAG (National Account at a Glance)
+* PDB_GR (Growth in GDP per capita)
+* PDB_LV (Level of GDP per capita and Productivity)
+* PNNI_NEW (Funded Pensions Indicator)
+* PPPGDP
+* REV (Revenue Statistics)
+* RS_GBL
+* QNA (Quarterly National Accounts)
+* SHA (Health Expenditure and Financing)
+* SNA_TABLE1 (GDP): There are a LOT of SNA tables.
+* SNA_TABLE5 (National Accounts): 
+* SOCX_AGG (Social Expenditure)
+* STLABOUR (Short-Term Labour Market Statistics)
+* ULC_QUA
+* WEALTH
+
 
 #### (Storytime) History of my Exploration:
 Or how I've got from Browser->Inspect Element and Curl to pandaSDMX.

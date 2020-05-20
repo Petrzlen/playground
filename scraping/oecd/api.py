@@ -1,11 +1,11 @@
 import datetime
 import http
 import json
+import re
 
 import requests
 
 from urllib.parse import urlencode
-from xml.etree import ElementTree
 
 from utils.utils import MMEnum, safe_mkdir, set_basic_logging_config
 
@@ -94,57 +94,30 @@ class ContentType(MMEnum):
     CSV = "csv"
 
 
-# ==================== GENERATORS =========================
-# TODO: This is likely easier to get from the SDMX-JSON response["structure"], which seems to have the same data.
-# -> But lets do it this way, good exercise to learn XML (and to separate the queries).
-def generate_schema(dataset):
-    url = f"https://stats.oecd.org/restsdmx/sdmx.ashx/GetDataStructure/{dataset}"
-    LOGGER.info(f"Getting schema definition: {url}")
-    response = requests.get(url)
-    if response.status_code != http.HTTPStatus.OK:
-        raise Exception(f"Failed to fetch schema for dataset {dataset}: {response.status_code}")
+def list_database_identifiers():
+    # page_start = 0
+    # page_size = 200
+    # Although this will give you a full-list of the available datasets, getting the DatabaseCodes is nowhere
+    # straightforward.
+    # url = f"https://data.oecd.org/search-api/?hf={page_size}&b={page_start}&r=%2Bf%2Ftype%2Fdatasets%2Fapi+access&r=%2Bf%2Flanguage%2Fen&l=en&sl=sl_dp&sc=enabled%3Atrue%2Cautomatically_correct%3Atrue&target=st_dp"
 
-    namespaces = {
-        "message": "http://www.SDMX.org/resources/SDMXML/schemas/v2_0/message",
-        "structure": "http://www.SDMX.org/resources/SDMXML/schemas/v2_0/structure",
-        "xml": "http://www.w3.org/XML/1998/namespace",
-    }
-    # Structure:
-    # message:Header
-    #   message:Prepared
-    # message:CodeLists
-    #   structure:CodeList(id, agencyID)
-    #     structure:Name(lang=en|fr).text
-    #     structure:Code(value, parentCode)
-    #       structure:Description(lang=en|fr)
-    # message:Concepts
-    #   structure:Concept
-    #     structure:Name(lang=en|fr).txt
-    # message:KeyFamilies
-    #   structure:KeyFamily(id=<dataset>, agencyID)
-    #     structure:Name(lang=en|fr).text<dataset.name>
+    # Other way is to Google the "https://stats.oecd.org/Index.aspx?DataSetCode=" url (hard to get the list),
+    # see `oecd.md` for the list.
+    db_code_manual_list = ["MEI", "MEI_CLI", "SNA", "HEALTH_STATE", "CRSNEW", "NAAG", "SHA", "STLABOUR", "SOCX_AGG", "MSTI_PUB", "CITIES", "QNA", "PDB_GR", "IDD", "MIG", "PDB_LV", "LFS_SEXAGE_I_R", "REV", "PNNI_NEW", "PPPGDP", "GREEN_GROWTH", "AEI_OTHER", "WEALTH", "ULC_QUA", "RS_GBL", "EAG_NEAC", "AEA", "DUR_I", "EAG_TRANS", "AV_AN_WAGE", "GENDER_EMP", "JOBQ", "HH_DASH", "IDO", "AIR_GHG", "FIN_IND_FBS", "MATERIAL_R"]
+    for db_code in db_code_manual_list:
+        url = f"https://stats.oecd.org/Index.aspx?DatasetCode={db_code}"
+        LOGGER.info(f"Fetching data from {url}")
+        response = requests.get(url)
+        if response.status_code != http.HTTPStatus.OK:
+            LOGGER.warning(f"Ignoring response {response.status_code}: {response.text[:100]}")
+            continue
 
-    root = ElementTree.fromstring(response.text)
-
-    code_lists_tag = root.find("message:CodeLists", namespaces)
-    for code_list_tag in code_lists_tag:
-        print("CodeList.id:", code_list_tag.attrib["id"])
-        code_list_name_tag = code_list_tag.find(".//structure:Name[@xml:lang='en']", namespaces)
-        print("CodeList.name[en]:", code_list_name_tag.text)
-        for code_tag in code_list_tag.findall("structure:Code", namespaces):
-            description_tag = code_tag.find(".//structure:Description[@xml:lang='en']", namespaces)
-            code_description = description_tag.text
-            code_value = code_tag.attrib["value"]
-            # TODO(entity): Once we allow relationships between.
-            # code_parent_code = code_tag.attrib.get("parentCode")
-            print("Code:", code_description, code_value)
+        # TODO: Make it work, verify it is and potentially make it recursive.
+        for dataset_param in re.findall(r'DataSet[^"]*'):
+            print(dataset_param)
         break
 
-
-def generate_database_identifiers():
-    # Go through pagination here
-    # TODO: Export pagination into utils/crawling
-    url = "https://data.oecd.org/search-api/?hf=20&b=80&r=f%2Ftype%2Fdatasets%2Fapi+access&r=%2Bf%2Ftype%2Fdatasets%2Fapi+access&r=%2Bf%2Flanguage%2Fen&l=en&sl=sl_dp&sc=enabled%3Atrue%2Cautomatically_correct%3Atrue&target=st_dp"
+        # sed 's/?/\n/g' sna_table.html | grep -o 'DataSet[^"]*' | cut -d'=' -f2 | sort | uniq
 
 
 # ============== OECD API ================
@@ -194,7 +167,8 @@ def get_and_store_dataset(
 
 
 safe_mkdir("data")
-generate_schema("QNA")
+
+list_database_identifiers()
 
 # TODO: Verify that the observation keys are keys into the structure(schema), e.g. "53:76:1:1:1"
 # TODO: Figure out why there are so many values for an observation: [5242552.583,1,null,36,0,null]
