@@ -146,4 +146,8 @@ for form_code in FormCode:
 output_filename = f"data/processing-times-as-of-{datetime.today().strftime('%Y-%m-%d')}.tsv"
 LOGGER.info(f"Writing {output_filename} with {len(rows)} of data (tab separated)")
 with open(output_filename, "w") as output_file:
+    # Header
+    output_file.write("\t".join(["FormCode", "Subtype", "ProcessingCenter", "ServiceRequestDate", "UpdatedByUSCIS"]))
+    output_file.write("\n")
+    # Rows
     output_file.write("\n".join(sorted(rows)))
