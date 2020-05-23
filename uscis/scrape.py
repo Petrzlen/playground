@@ -143,7 +143,7 @@ for form_code in FormCode:
             rows.append(row)
 
 
-output_filename = f"data/processing-times-as-of-{datetime.today().strftime('%Y-%m-%d')}.csv"
+output_filename = f"data/processing-times-as-of-{datetime.today().strftime('%Y-%m-%d')}.tsv"
 LOGGER.info(f"Writing {output_filename} with {len(rows)} of data (tab separated)")
 with open(output_filename, "w") as output_file:
     output_file.write("\n".join(sorted(rows)))
