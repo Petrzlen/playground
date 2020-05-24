@@ -68,6 +68,96 @@ class ProcessingCenter(Enum):
     POTOMAC_SERVICE_CENTER = "YSC"
     TEXAS_SERVICE_CENTER = "SSC"
     VERMONT_SERVICE_CENTER = "ESC"
+    NATIONAL_BENEFITS_CENTER = "NBC"
+    AGANA_GU = "AGA"
+    ALBANY_NY = "ALB"
+    ALBUQUERQUE_NM = "ALB"
+    ANCHORAGE_AK = "ANC"
+    ATLANTA_GA = "ATL"
+    BALTIMORE_MD = "BAL"
+    BOISE_ID = "BOI"
+    BOSTON_MA = "BOS"
+    BROOKLYN_NY = "BRO"
+    BUFFALO_NY = "BUF"
+    CHARLESTON_SC = "CHA"
+    CHARLOTTE_AMALIE_VI = "CHA"
+    CHARLOTTE_NC = "CHA"
+    CHICAGO_IL = "CHI"
+    CHRISTIANSTED_VI = "CHR"
+    CINCINNATI_OH = "CIN"
+    CLEVELAND_OH = "CLE"
+    COLUMBUS_OH = "COL"
+    DALLAS_TX = "DAL"
+    DENVER_CO = "DEN"
+    DES_MOINES_IA = "DES"
+    DETROIT_MI = "DET"
+    EL_PASO_TX = "ELP"
+    FORT_MYERS_FL = "FOR"
+    FORT_SMITH_AR = "FOR"
+    FRESNO_CA = "FRE"
+    GREER_SC = "GRE"
+    HARLINGEN_TX = "HAR"
+    HARTFORD_CT = "HAR"
+    HELENA_MT = "HEL"
+    HIALEAH_FL = "HIA"
+    HONOLULU_HI = "HON"
+    HOUSTON_TX = "HOU"
+    IMPERIAL_CA = "IMP"
+    INDIANAPOLIS_IN = "IND"
+    JACKSONVILLE_FL = "JAC"
+    KANSAS_CITY_MO = "KAN"
+    KENDALL_FL = "KEN"
+    LAS_VEGAS_NV = "LAS"
+    LAWRENCE_MA = "LAW"
+    LONG_ISLAND_NY = "LON"
+    LOS_ANGELES_CA = "LOS"
+    LOS_ANGELES_COUNTY_CA = "LAC"
+    LOUISVILLE_KY = "LOU"
+    MANCHESTER_NH = "MAN"
+    MEMPHIS_TN = "MEM"
+    MIAMI_FL = "MIA"
+    MILWAUKEE_WI = "MIL"
+    MINNEAPOLIS_ST_PAUL_MN = "MIN"
+    MONTGOMERY_AL = "MON"
+    MOUNT_LAUREL_NJ = "MOU"
+    NASHVILLE_TN = "NAS"
+    NEWARK_NJ = "NEW"
+    NEW_ORLEANS_LA = "NEW"
+    NEW_YORK_CITY_NY = "NEW"
+    NORFOLK_VA = "NOR"
+    OAKLAND_PARK_FL = "OAK"
+    OKLAHOMA_CITY_OK = "OKL"
+    OMAHA_NE = "OMA"
+    ORLANDO_FL = "ORL"
+    PHILADELPHIA_PA = "PHI"
+    PHOENIX_AZ = "PHO"
+    PITTSBURGH_PA = "PIT"
+    PORTLAND_ME = "POM"
+    PORTLAND_OR = "POO"
+    PROVIDENCE_RI = "PRO"
+    QUEENS_NY = "QUE"
+    RALEIGH_NC = "RAL"
+    RENO_NV = "REN"
+    SACRAMENTO_CA = "SAC"
+    SAINT_ALBANS_VT = "SAI"
+    SAINT_LOUIS_MO = "SAI"
+    SALT_LAKE_CITY_UT = "SAL"
+    SAN_ANTONIO_TX = "SNA"
+    SAN_BERNARDINO_CA = "SNB"
+    SAN_DIEGO_CA = "SND"
+    SAN_FERNANDO_VALLEY_CA = "SNF"
+    SAN_FRANCISCO_CA = "SFR"
+    SAN_JOSE_CA = "SNJ"
+    SAN_JUAN_PR = "SAJ"
+    SANTA_ANA_CA = "SAA"
+    SEATTLE_WA = "SEA"
+    SPOKANE_WA = "SPO"
+    TAMPA_FL = "TAM"
+    TUCSON_AZ = "TUC"
+    WASHINGTON_DC = "WAS"
+    WEST_PALM_BEACH_FL = "WES"
+    WICHITA_KS = "WIC"
+    YAKIMA_WA = "YAK"
 
 
 def generate_form_codes():
@@ -77,7 +167,7 @@ def generate_form_codes():
     from slugify import slugify
     from xml.etree import ElementTree
 
-    with open("form_options.html", "r") as input_file:
+    with open("form_code_options.html", "r") as input_file:
         html_form_raw = input_file.read()
     select = ElementTree.fromstring(html_form_raw)
     for option in select:
@@ -88,6 +178,15 @@ def generate_form_codes():
         form_name = parts[1].strip()
         enum_form_name = f"{form_code}_{slugify(form_name)}".upper().replace("-", "_")
         print(f"{enum_form_name} = \"{form_code}\"")
+
+    with open("processing_center_options.html", "r") as input_file:
+        html_form_raw = input_file.read()
+    select = ElementTree.fromstring(html_form_raw)
+    for option in select:
+        if "Select One" in option.text:
+            continue
+        enum_form_name = slugify(option.text).upper().replace("-", "_")
+        print(f"{enum_form_name} = \"{enum_form_name[:3]}\"")  # Best effort code is to take first three letters.
 
 
 def get(form_code: FormCode, processing_center: ProcessingCenter):
@@ -116,25 +215,40 @@ def get(form_code: FormCode, processing_center: ProcessingCenter):
     return json.loads(response.content)
 
 
+def maybe_shorten(text, max_length):
+    if len(text) <= max_length:
+        return text
+
+    return text[:(max_length + 1)//2 - 2] + "..." + text[-(max_length//2 - 1):]
+
+
+# ============== ONE-TIME setup (copy this to enum definitions)
 # generate_form_codes()
+
+# ============== RE-SCRAPE data
 rows = []
 LOGGER.info(
     f"Will get current USCIS Processing Times for {len(FormCode)} forms"
     f" and {len(ProcessingCenter)} processing centers"
 )
 for form_code in FormCode:
-    for processing_center in ProcessingCenter:
+    # For most of Forms, only the first 6 centers make sense. The full list is used e.g. for I-485
+    for processing_center in list(ProcessingCenter)[:6]:
         response_data = get(form_code, processing_center)
         if response_data is None:
             continue
 
         subtypes = response_data["data"]["processing_time"]["subtypes"]
         for subtype in subtypes:
+            range = subtype["range"]
+            range_text = f"{range[1]['value']} {range[1]['unit']} - {range[0]['value']} {range[0]['unit']}"
             row = "\t".join([
                 form_code.value,
-                subtype["form_type"],
+                maybe_shorten(subtype["subtype_info_en"], 50),   # Human-readable version of subtype["form_type"],
                 # human readable name of the processing center
-                processing_center.name,
+                processing_center.name.split("_")[0],
+                # USCIS expected processing time range (also depends on the application)
+                range_text,
                 # requests before this dates SHOULD be processes (you can formally inquire if not)
                 subtype["service_request_date"],
                 # when it was updated by USCIS (usually monthly)
@@ -147,7 +261,9 @@ output_filename = f"data/processing-times-as-of-{datetime.today().strftime('%Y-%
 LOGGER.info(f"Writing {output_filename} with {len(rows)} of data (tab separated)")
 with open(output_filename, "w") as output_file:
     # Header
-    output_file.write("\t".join(["FormCode", "Subtype", "ProcessingCenter", "ServiceRequestDate", "UpdatedByUSCIS"]))
+    output_file.write("\t".join(
+        ["FormCode", "Subtype", "ProcessingCenter", "ExpectedProcessingTime", "ServiceRequestDate", "UpdatedByUSCIS"])
+    )
     output_file.write("\n")
     # Rows
     output_file.write("\n".join(sorted(rows)))
