@@ -42,3 +42,4 @@ def set_basic_logging_config(name):
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     return logging.getLogger(name)
+

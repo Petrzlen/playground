@@ -1,10 +1,11 @@
 import datetime
 import http
 import json
+import os
 import re
-
 import requests
 
+from bs4 import BeautifulSoup
 from urllib.parse import urlencode
 
 from utils.utils import MMEnum, safe_mkdir, set_basic_logging_config
@@ -94,30 +95,58 @@ class ContentType(MMEnum):
     CSV = "csv"
 
 
-def list_database_identifiers():
+# TODO(generalize): This can be generalized into sth like (data -> url, url -> data)
+def list_database_codes(orig_db_codes, code_to_name_map, recurse_level=3):
+    """
+    param orig_db_codes: starting list of db codes to scrape, e.g.: ["MEI", "QNA"]
+    param code_to_name_map: to collect code to name mappings, e.g. "MEI: Main Economic Indicators Publication"
+    param recurse_level: how many calls (including this one) should be called with new db codes.
+
+    An alternative approach would be going though the list API, but getting the dataset codes is non-straightforward.
     # page_start = 0
     # page_size = 200
-    # Although this will give you a full-list of the available datasets, getting the DatabaseCodes is nowhere
-    # straightforward.
     # url = f"https://data.oecd.org/search-api/?hf={page_size}&b={page_start}&r=%2Bf%2Ftype%2Fdatasets%2Fapi+access&r=%2Bf%2Flanguage%2Fen&l=en&sl=sl_dp&sc=enabled%3Atrue%2Cautomatically_correct%3Atrue&target=st_dp"
+    """
+    if recurse_level <= 0:
+        return []
 
-    # Other way is to Google the "https://stats.oecd.org/Index.aspx?DataSetCode=" url (hard to get the list),
-    # see `oecd.md` for the list.
-    db_code_manual_list = ["MEI", "MEI_CLI", "SNA", "HEALTH_STATE", "CRSNEW", "NAAG", "SHA", "STLABOUR", "SOCX_AGG", "MSTI_PUB", "CITIES", "QNA", "PDB_GR", "IDD", "MIG", "PDB_LV", "LFS_SEXAGE_I_R", "REV", "PNNI_NEW", "PPPGDP", "GREEN_GROWTH", "AEI_OTHER", "WEALTH", "ULC_QUA", "RS_GBL", "EAG_NEAC", "AEA", "DUR_I", "EAG_TRANS", "AV_AN_WAGE", "GENDER_EMP", "JOBQ", "HH_DASH", "IDO", "AIR_GHG", "FIN_IND_FBS", "MATERIAL_R"]
-    for db_code in db_code_manual_list:
+
+    parsed_db_codes = set()
+    safe_mkdir("data/html")
+    for db_code in orig_db_codes:
+        # Cache the fetch results to disk as it's rather slow to fetch again.
+        db_code_filename = f"data/html/{db_code}.html"
         url = f"https://stats.oecd.org/Index.aspx?DatasetCode={db_code}"
-        LOGGER.info(f"Fetching data from {url}")
-        response = requests.get(url)
-        if response.status_code != http.HTTPStatus.OK:
-            LOGGER.warning(f"Ignoring response {response.status_code}: {response.text[:100]}")
-            continue
 
-        # TODO: Make it work, verify it is and potentially make it recursive.
-        for dataset_param in re.findall(r'DataSet[^"]*'):
-            print(dataset_param)
-        break
+        if not os.path.exists(db_code_filename):
+            LOGGER.info(f"Fetching data from {url}")
+            response = requests.get(url)
+            if response.status_code != http.HTTPStatus.OK:
+                LOGGER.warning(f"Ignoring response {response.status_code}: {response.text[:100]}")
+                continue
+            with open(db_code_filename, "w") as output_file:
+                output_file.write(response.text)
 
-        # sed 's/?/\n/g' sna_table.html | grep -o 'DataSet[^"]*' | cut -d'=' -f2 | sort | uniq
+        with open(db_code_filename, "r") as fp:
+            soup = BeautifulSoup(fp, features="html.parser")
+
+        code_to_name_map[db_code] = soup.title.text.strip()
+        for link in soup.find_all("a"):
+            url = link.get("href")
+            if url is not None:
+                # Examples:
+                # OECDStat_Metadata/ShowMetadata.ashx?DataSet=ITF_INDICATORS
+                # Index.aspx?DataSetCode=ITF_ROAD_ACCIDENTS
+                match = re.match(r'.*(DataSet[^"]*).*', url)
+                if match:
+                    parsed_db_codes.add(match.group(1).split("=")[1])
+
+    new_db_codes = parsed_db_codes.difference(set(orig_db_codes))
+    LOGGER.info(f"Found {len(new_db_codes)} new db_codes, first 10: {list(new_db_codes)[:10]}")
+    if len(new_db_codes) > 0:
+        recursed_db_codes = list_database_codes(new_db_codes, code_to_name_map, recurse_level=recurse_level - 1)
+        parsed_db_codes.update(set(recursed_db_codes))
+    return list(parsed_db_codes)
 
 
 # ============== OECD API ================
@@ -168,22 +197,12 @@ def get_and_store_dataset(
 
 safe_mkdir("data")
 
-list_database_identifiers()
+db_code_manual_list = ["MEI", "MEI_CLI", "SNA", "HEALTH_STATE", "CRSNEW", "NAAG", "SHA", "STLABOUR", "SOCX_AGG", "MSTI_PUB", "CITIES", "QNA", "PDB_GR", "IDD", "MIG", "PDB_LV", "LFS_SEXAGE_I_R", "REV", "PNNI_NEW", "PPPGDP", "GREEN_GROWTH", "AEI_OTHER", "WEALTH", "ULC_QUA", "RS_GBL", "EAG_NEAC", "AEA", "DUR_I", "EAG_TRANS", "AV_AN_WAGE", "GENDER_EMP", "JOBQ", "HH_DASH", "IDO", "AIR_GHG", "FIN_IND_FBS", "MATERIAL_R"]
+enum_map = {}
+list_database_codes(db_code_manual_list, enum_map, 3)
+# TODO: Generate enums.
 
-# TODO: Verify that the observation keys are keys into the structure(schema), e.g. "53:76:1:1:1"
-# TODO: Figure out why there are so many values for an observation: [5242552.583,1,null,36,0,null]
-# Looks like this:
-# "dataSets": [{
-#   "action": "Information",
-#   "observations": {
-#       "0:0:0:0:0": [29276700.0, 0, null, 0, 0, null],
-#       "0:0:0:1:1": [28479600.0, 1, null, 0, 0, null],
-#       ....
 # get_and_store_dataset("QNA", filepath="data/test.json", start_period=Period(year="2019"), content_type=ContentType.JSON)
-# TODO: Normalize currencies.
-# The CSV version is much more readable / parsable (also easier to merge multiple years).
-# "JPN","Japan","GFSPB","Public sector","CARSA","","A","Annual","2019","2019","JPY","Yen","6","Millions",,,29276700,,
-# get_and_store_dataset("QNA", filepath="data/test.csv", start_period=Period(year="2019"), content_type=ContentType.CSV)
 
 
 

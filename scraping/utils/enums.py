@@ -34,6 +34,7 @@ def enumizy_name(name: str) -> str:
     return name
 
 
+# TODO(generalize): Split this into two functions, one from urls to map, another from map to enum.
 def generate_enums(
     urls,
     output_filepath,
