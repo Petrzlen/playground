@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlencode
 
+from oecd.enums.database_codes import DatabaseCode
 from utils.enums import enumizy_name, generate_enums
 from utils.utils import MMEnum, safe_mkdir, set_basic_logging_config
 
@@ -210,19 +211,31 @@ def get_and_store_dataset(
 
 safe_mkdir("data")
 
-db_code_manual_list = ["MEI", "MEI_CLI", "SNA", "HEALTH_STATE", "CRSNEW", "NAAG", "SHA", "STLABOUR", "SOCX_AGG", "MSTI_PUB", "CITIES", "QNA", "PDB_GR", "IDD", "MIG", "PDB_LV", "LFS_SEXAGE_I_R", "REV", "PNNI_NEW", "PPPGDP", "GREEN_GROWTH", "AEI_OTHER", "WEALTH", "ULC_QUA", "RS_GBL", "EAG_NEAC", "AEA", "DUR_I", "EAG_TRANS", "AV_AN_WAGE", "GENDER_EMP", "JOBQ", "HH_DASH", "IDO", "AIR_GHG", "FIN_IND_FBS", "MATERIAL_R"]
-codes_to_raw_names = {}
-list_database_codes(db_code_manual_list, codes_to_raw_names, 3)
+# ==== Initial run
+# db_code_manual_list = ["MEI", "MEI_CLI", "SNA", "HEALTH_STATE", "CRSNEW", "NAAG", "SHA", "STLABOUR", "SOCX_AGG", "MSTI_PUB", "CITIES", "QNA", "PDB_GR", "IDD", "MIG", "PDB_LV", "LFS_SEXAGE_I_R", "REV", "PNNI_NEW", "PPPGDP", "GREEN_GROWTH", "AEI_OTHER", "WEALTH", "ULC_QUA", "RS_GBL", "EAG_NEAC", "AEA", "DUR_I", "EAG_TRANS", "AV_AN_WAGE", "GENDER_EMP", "JOBQ", "HH_DASH", "IDO", "AIR_GHG", "FIN_IND_FBS", "MATERIAL_R"]
+# codes_to_raw_names = {}
+# list_database_codes(db_code_manual_list, codes_to_raw_names, 3)
+#
+# # Transform into enum names
+# name_to_values = {}
+# for code, raw_name in sorted(codes_to_raw_names.items()):
+#     name_to_values[enumizy_name(raw_name)] = code
+# generate_enums({"DatabaseCode": name_to_values}, "enums/database_codes.py")
 
-# Transform into enum names
-name_to_values = {}
-for code, raw_name in sorted(codes_to_raw_names.items()):
-    name_to_values[enumizy_name(raw_name)] = code
-generate_enums({"DatabaseCode": name_to_values}, "enums/database_codes.py")
+# ==== Download all the data omnomnomnom.
+for year in range(2019, 2008, -1):
+    LOGGER.info(f"Year: {year}")
+    # for db_code in DatabaseCode:
+    for db_code in ["MEI", "MEI_CLI", "SNA", "HEALTH_STATE", "CRSNEW", "NAAG", "SHA", "STLABOUR", "SOCX_AGG", "MSTI_PUB", "CITIES", "QNA", "PDB_GR", "IDD", "MIG", "PDB_LV", "LFS_SEXAGE_I_R", "REV", "PNNI_NEW", "PPPGDP", "GREEN_GROWTH", "AEI_OTHER", "WEALTH", "ULC_QUA", "RS_GBL", "EAG_NEAC", "AEA", "DUR_I", "EAG_TRANS", "AV_AN_WAGE", "GENDER_EMP", "JOBQ", "HH_DASH", "IDO", "AIR_GHG", "FIN_IND_FBS", "MATERIAL_R"]:
+        dirpath = f"data/{db_code}"
+        safe_mkdir(dirpath)
 
-# TODO: Download all datasets.
-
-# get_and_store_dataset("QNA", filepath="data/test.json", start_period=Period(year="2019"), content_type=ContentType.JSON)
+        get_and_store_dataset(
+            db_code,
+            filepath=f"{dirpath}/{year}.csv",
+            start_period=Period(year=str(year)),
+            content_type=ContentType.CSV
+        )
 
 
 
