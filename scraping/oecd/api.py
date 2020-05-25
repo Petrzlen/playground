@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlencode
 
+from utils.enums import enumizy_name, generate_enums
 from utils.utils import MMEnum, safe_mkdir, set_basic_logging_config
 
 LOGGER = set_basic_logging_config("OECD")
@@ -110,7 +111,7 @@ def url_to_soup(url: str, filepath: str):
 
 
 # TODO(generalize): This can be generalized into sth like (data -> url, url -> data)
-def list_database_codes(seed_db_codes, code_to_name_map, recurse_level=3):
+def list_database_codes(seed_db_codes, codes_to_raw_names, recurse_level=3):
     """
     param orig_db_codes: starting list of db codes to scrape, e.g.: ["MEI", "QNA"]
     param code_to_name_map: to collect code to name mappings, e.g. "MEI: Main Economic Indicators Publication"
@@ -127,7 +128,7 @@ def list_database_codes(seed_db_codes, code_to_name_map, recurse_level=3):
     safe_mkdir("data/html")
     for i in range(1, recurse_level+1):
         this_iter_db_codes = set()
-        LOGGER.info(f"Iter {i}: Will iterate through {len(new_db_codes)} new db codes")
+        LOGGER.info(f"Iter {i}: Iterating through {len(new_db_codes)} new db codes")
         for j, db_code in enumerate(new_db_codes):
             if (j + 1) % 100 == 0:
                 LOGGER.info(f"Iter {i}: Parsed {j}/{len(new_db_codes)} so far.")
@@ -138,7 +139,7 @@ def list_database_codes(seed_db_codes, code_to_name_map, recurse_level=3):
             if soup is None:
                 continue
 
-            code_to_name_map[db_code] = soup.title.text.strip()
+            codes_to_raw_names[db_code] = soup.title.text.strip()
             for link in soup.find_all("a"):
                 url = link.get("href")
                 if url is not None:
@@ -210,9 +211,15 @@ def get_and_store_dataset(
 safe_mkdir("data")
 
 db_code_manual_list = ["MEI", "MEI_CLI", "SNA", "HEALTH_STATE", "CRSNEW", "NAAG", "SHA", "STLABOUR", "SOCX_AGG", "MSTI_PUB", "CITIES", "QNA", "PDB_GR", "IDD", "MIG", "PDB_LV", "LFS_SEXAGE_I_R", "REV", "PNNI_NEW", "PPPGDP", "GREEN_GROWTH", "AEI_OTHER", "WEALTH", "ULC_QUA", "RS_GBL", "EAG_NEAC", "AEA", "DUR_I", "EAG_TRANS", "AV_AN_WAGE", "GENDER_EMP", "JOBQ", "HH_DASH", "IDO", "AIR_GHG", "FIN_IND_FBS", "MATERIAL_R"]
-enum_map = {}
-list_database_codes(db_code_manual_list, enum_map, 3)
-# TODO: Generate enums.
+codes_to_raw_names = {}
+list_database_codes(db_code_manual_list, codes_to_raw_names, 3)
+
+# Transform into enum names
+name_to_values = {}
+for code, raw_name in sorted(codes_to_raw_names.items()):
+    name_to_values[enumizy_name(raw_name)] = code
+generate_enums({"DatabaseCode": name_to_values}, "enums/database_codes.py")
+
 # TODO: Download all datasets.
 
 # get_and_store_dataset("QNA", filepath="data/test.json", start_period=Period(year="2019"), content_type=ContentType.JSON)

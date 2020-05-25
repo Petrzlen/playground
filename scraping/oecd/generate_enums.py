@@ -5,7 +5,7 @@ import requests
 
 from xml.etree import ElementTree
 
-from utils.enums import EXTRA_PREFIX, generate_enums, titlezy_name
+from utils.enums import EXTRA_PREFIX, gather_and_generate_enums, titlezy_name
 from utils.utils import safe_mkdir, set_basic_logging_config
 
 
@@ -85,7 +85,7 @@ urls = [f"https://stats.oecd.org/restsdmx/sdmx.ashx/GetDataStructure/{dataset}" 
 #  for values. More ideas can be found by searching https://data.oecd.org/searchresults/
 # TODO: Might have useful docustrings: https://www.oecd.org/els/health-systems/List-of-variables-OECD-Health-Statistics-2018.pdf
 
-generate_enums(
+gather_and_generate_enums(
     urls=urls,
     output_filepath=f"{enum_dir}/all.py",
     parse_response=parse_oecd_schema_response,

@@ -2,7 +2,7 @@ import functools
 import json
 import requests
 
-from utils.enums import generate_enums
+from utils.enums import gather_and_generate_enums
 from utils.test import assert_equal
 from utils.utils import safe_mkdir, set_basic_logging_config
 
@@ -38,7 +38,7 @@ assert_equal(
 enum_dir = "enums"
 safe_mkdir(enum_dir)
 # Merge partner/reporter Areas for one comprehensive list of Countries.
-generate_enums(
+gather_and_generate_enums(
     urls=[
         "https://comtrade.un.org/Data/cache/partnerAreas.json",
         "https://comtrade.un.org/data/cache/reporterAreas.json",
