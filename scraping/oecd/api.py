@@ -95,8 +95,22 @@ class ContentType(MMEnum):
     CSV = "csv"
 
 
+def url_to_soup(url: str, filepath: str):
+    if not os.path.exists(filepath):
+        LOGGER.info(f"Fetching data from {url}")
+        response = requests.get(url)
+        if response.status_code != http.HTTPStatus.OK:
+            LOGGER.warning(f"Ignoring response {response.status_code}: {response.text[:100]}")
+            return None
+        with open(filepath, "w") as output_file:
+            output_file.write(response.text)
+
+    with open(filepath, "r") as fp:
+        return BeautifulSoup(fp, features="html.parser")
+
+
 # TODO(generalize): This can be generalized into sth like (data -> url, url -> data)
-def list_database_codes(orig_db_codes, code_to_name_map, recurse_level=3):
+def list_database_codes(seed_db_codes, code_to_name_map, recurse_level=3):
     """
     param orig_db_codes: starting list of db codes to scrape, e.g.: ["MEI", "QNA"]
     param code_to_name_map: to collect code to name mappings, e.g. "MEI: Main Economic Indicators Publication"
@@ -107,46 +121,44 @@ def list_database_codes(orig_db_codes, code_to_name_map, recurse_level=3):
     # page_size = 200
     # url = f"https://data.oecd.org/search-api/?hf={page_size}&b={page_start}&r=%2Bf%2Ftype%2Fdatasets%2Fapi+access&r=%2Bf%2Flanguage%2Fen&l=en&sl=sl_dp&sc=enabled%3Atrue%2Cautomatically_correct%3Atrue&target=st_dp"
     """
-    if recurse_level <= 0:
-        return []
 
-
-    parsed_db_codes = set()
+    all_db_codes = set()
+    new_db_codes = set(seed_db_codes)
     safe_mkdir("data/html")
-    for db_code in orig_db_codes:
-        # Cache the fetch results to disk as it's rather slow to fetch again.
-        db_code_filename = f"data/html/{db_code}.html"
-        url = f"https://stats.oecd.org/Index.aspx?DatasetCode={db_code}"
-
-        if not os.path.exists(db_code_filename):
-            LOGGER.info(f"Fetching data from {url}")
-            response = requests.get(url)
-            if response.status_code != http.HTTPStatus.OK:
-                LOGGER.warning(f"Ignoring response {response.status_code}: {response.text[:100]}")
+    for i in range(1, recurse_level+1):
+        this_iter_db_codes = set()
+        LOGGER.info(f"Iter {i}: Will iterate through {len(new_db_codes)} new db codes")
+        for j, db_code in enumerate(new_db_codes):
+            if (j + 1) % 100 == 0:
+                LOGGER.info(f"Iter {i}: Parsed {j}/{len(new_db_codes)} so far.")
+            # Cache the fetch results to disk as it's rather slow to fetch again.
+            db_code_filename = f"data/html/{db_code}.html"
+            url = f"https://stats.oecd.org/Index.aspx?DatasetCode={db_code}"
+            soup = url_to_soup(url, db_code_filename)
+            if soup is None:
                 continue
-            with open(db_code_filename, "w") as output_file:
-                output_file.write(response.text)
 
-        with open(db_code_filename, "r") as fp:
-            soup = BeautifulSoup(fp, features="html.parser")
+            code_to_name_map[db_code] = soup.title.text.strip()
+            for link in soup.find_all("a"):
+                url = link.get("href")
+                if url is not None:
+                    # Examples of URLs which we looking for:
+                    # OECDStat_Metadata/ShowMetadata.ashx?DataSet=ITF_INDICATORS
+                    # Index.aspx?DataSetCode=ITF_ROAD_ACCIDENTS
+                    match = re.match(r'.*(DataSet[^"]*).*', url)
+                    if match:
+                        this_iter_db_codes.add(match.group(1).split("=")[1])
 
-        code_to_name_map[db_code] = soup.title.text.strip()
-        for link in soup.find_all("a"):
-            url = link.get("href")
-            if url is not None:
-                # Examples:
-                # OECDStat_Metadata/ShowMetadata.ashx?DataSet=ITF_INDICATORS
-                # Index.aspx?DataSetCode=ITF_ROAD_ACCIDENTS
-                match = re.match(r'.*(DataSet[^"]*).*', url)
-                if match:
-                    parsed_db_codes.add(match.group(1).split("=")[1])
+        new_db_codes = this_iter_db_codes.difference(all_db_codes)
+        if len(new_db_codes) == 0:
+            LOGGER.info(f"Iter {i}: No new db codes founds, returning the {len(all_db_codes)} db codes found.")
+            return all_db_codes
 
-    new_db_codes = parsed_db_codes.difference(set(orig_db_codes))
-    LOGGER.info(f"Found {len(new_db_codes)} new db_codes, first 10: {list(new_db_codes)[:10]}")
-    if len(new_db_codes) > 0:
-        recursed_db_codes = list_database_codes(new_db_codes, code_to_name_map, recurse_level=recurse_level - 1)
-        parsed_db_codes.update(set(recursed_db_codes))
-    return list(parsed_db_codes)
+        LOGGER.info(f"Iter {i}: Found {len(new_db_codes)} new db codes, first 10: {list(new_db_codes)[:10]}")
+        all_db_codes.update(new_db_codes)
+
+    LOGGER.info(f"Max recursion {recurse_level} reached, returning the {len(all_db_codes)} db codes found.")
+    return list(all_db_codes)
 
 
 # ============== OECD API ================
@@ -201,6 +213,7 @@ db_code_manual_list = ["MEI", "MEI_CLI", "SNA", "HEALTH_STATE", "CRSNEW", "NAAG"
 enum_map = {}
 list_database_codes(db_code_manual_list, enum_map, 3)
 # TODO: Generate enums.
+# TODO: Download all datasets.
 
 # get_and_store_dataset("QNA", filepath="data/test.json", start_period=Period(year="2019"), content_type=ContentType.JSON)
 
