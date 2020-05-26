@@ -87,6 +87,7 @@ def scrape_with_retry(partner, period, classification_code, retry_count=0):
             if attempt < retry_count:
                 LOGGER.warning(f"{partner.name},{period}: Retrying {retry_count - attempt} more times as exception: {e}")
                 # There are odds we got rate-limited, so exponentially chill out for a while.
+                # TODO(improvement): Use jitter (randomness) to exponential backoff: https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
                 print_and_sleep(2 ** attempt * 300, LOGGER)
             else:
                 LOGGER.error(f"{partner.name},{period}: Retry failed, giving up. Exception: {e}")
