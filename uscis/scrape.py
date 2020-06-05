@@ -4,6 +4,7 @@ import requests
 import sys
 
 from datetime import datetime
+from dateutil import parser
 from enum import Enum
 
 
@@ -231,7 +232,9 @@ LOGGER.info(
     f"Will get current USCIS Processing Times for {len(FormCode)} forms"
     f" and {len(ProcessingCenter)} processing centers"
 )
-for form_code in FormCode:
+for form_code in list(FormCode)[:2]:
+    publication_date = None
+
     # For most of Forms, only the first 6 centers make sense. The full list is used e.g. for I-485
     for processing_center in list(ProcessingCenter)[:6]:
         response_data = get(form_code, processing_center)
@@ -240,6 +243,13 @@ for form_code in FormCode:
 
         subtypes = response_data["data"]["processing_time"]["subtypes"]
         for subtype in subtypes:
+            if publication_date is None:
+                publication_date = subtype["publication_date"]
+            if publication_date and publication_date != subtype["publication_date"]:
+                LOGGER.warning(
+                    f"Two different publication dates {publication_date} and {subtype['publication_date']}"
+                )
+
             range = subtype["range"]
             range_text = f"{range[1]['value']} {range[1]['unit']} - {range[0]['value']} {range[0]['unit']}"
             row = "\t".join([
@@ -251,13 +261,12 @@ for form_code in FormCode:
                 range_text,
                 # requests before this dates SHOULD be processes (you can formally inquire if not)
                 subtype["service_request_date"],
-                # when it was updated by USCIS (usually monthly)
-                subtype["publication_date"],
             ])
             rows.append(row)
 
 
-output_filename = f"data/processing-times-as-of-{datetime.today().strftime('%Y-%m-%d')}.tsv"
+publication_date_parsed = parser.parse(publication_date)
+output_filename = f"data/processing-times-as-of-{publication_date_parsed.strftime('%Y-%m-%d')}.tsv"
 LOGGER.info(f"Writing {output_filename} with {len(rows)} of data (tab separated)")
 with open(output_filename, "w") as output_file:
     # Header
