@@ -232,7 +232,7 @@ LOGGER.info(
     f"Will get current USCIS Processing Times for {len(FormCode)} forms"
     f" and {len(ProcessingCenter)} processing centers"
 )
-for form_code in list(FormCode)[:2]:
+for form_code in list(FormCode):
     publication_date = None
 
     # For most of Forms, only the first 6 centers make sense. The full list is used e.g. for I-485
