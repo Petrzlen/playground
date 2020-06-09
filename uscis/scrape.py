@@ -233,7 +233,7 @@ LOGGER.info(
     f" and {len(ProcessingCenter)} processing centers"
 )
 for form_code in list(FormCode):
-    publication_date = None
+    publication_date_result = None
 
     # For most of Forms, only the first 6 centers make sense. The full list is used e.g. for I-485
     for processing_center in list(ProcessingCenter)[:6]:
@@ -243,12 +243,13 @@ for form_code in list(FormCode):
 
         subtypes = response_data["data"]["processing_time"]["subtypes"]
         for subtype in subtypes:
-            if publication_date is None:
-                publication_date = subtype["publication_date"]
-            if publication_date and publication_date != subtype["publication_date"]:
-                LOGGER.warning(
-                    f"Two different publication dates {publication_date} and {subtype['publication_date']}"
-                )
+            if "publication_date" in subtype:
+                try:
+                    publication_date_parsed = parser.parse(subtype["publication_date"])
+                except e:
+                    LOGGER.warning(f"Cannot parse datetime {subtype['publication_date']}")
+                if publication_date_result is None or publication_date_result < publication_date_parsed:
+                    publication_date_result = publication_date_parsed
 
             range = subtype["range"]
             range_text = f"{range[1]['value']} {range[1]['unit']} - {range[0]['value']} {range[0]['unit']}"
@@ -261,12 +262,18 @@ for form_code in list(FormCode):
                 range_text,
                 # requests before this dates SHOULD be processes (you can formally inquire if not)
                 subtype["service_request_date"],
+                # usually same for all
+                subtype["publication_date"],
             ])
             rows.append(row)
 
 
-publication_date_parsed = parser.parse(publication_date)
 output_filename = f"data/processing-times-as-of-{publication_date_parsed.strftime('%Y-%m-%d')}.tsv"
+if os.path.exists(output_filename):
+    nf = f"data/processing-times-as-of-{datetime.now().strftime('%Y-%m-%d')}.tsv"
+    LOGGER.warning(f"Output filepath {output_filename} for the publication_date already exist, creating: {nf}")
+    output_filename = nf
+
 LOGGER.info(f"Writing {output_filename} with {len(rows)} of data (tab separated)")
 with open(output_filename, "w") as output_file:
     # Header
