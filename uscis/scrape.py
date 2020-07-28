@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import requests
+import time
 import sys
 
 from datetime import datetime
@@ -191,7 +192,7 @@ def generate_form_codes():
         print(f"{enum_form_name} = \"{enum_form_name[:3]}\"")  # Best effort code is to take first three letters.
 
 
-def get(form_code: FormCode, processing_center: ProcessingCenter):
+def get(form_code: FormCode, processing_center: ProcessingCenter, retry=True):
     url = f"https://egov.uscis.gov/processing-times/api/processingtime/{form_code}/{processing_center}"
     headers = {
         "Host": "egov.uscis.gov",
@@ -204,7 +205,16 @@ def get(form_code: FormCode, processing_center: ProcessingCenter):
         "Referer": "https://egov.uscis.gov/processing-times/",
     }
     LOGGER.info(f"Requesting GET {url}")
-    response = requests.get(url=url, headers=headers)
+    try:
+        response = requests.get(url=url, headers=headers)
+    except Exception as e:
+        LOGGER.warning(f"During GET {url} exception {e}")
+        if retry:
+            LOGGER.info("Will retry in 10 seconds")
+            time.sleep(10)
+            return get(form_code, processing_center, retry=False)
+        raise e
+
     if response.status_code != 200:
         if response.status_code == 400:
             response_data = json.loads(response.content)
